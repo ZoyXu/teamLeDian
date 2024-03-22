@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import "../css/order.css";
+// import Carousel from 'react-bootstrap/Carousel';
 import "bootstrap/dist/js/bootstrap.js";
 import axios from 'axios';
 
@@ -7,26 +8,25 @@ import axios from 'axios';
 class order extends Component {
 
     state = {
-        storeList: []
+        storeList: [],
+        buttonList: []
     }
 
     render() {
 
-        const {storeList} = this.state;
-
-
         return (<React.Fragment>
 
-
+            {/* header */}
 
 
             {/* 電腦版banner */}
             <div className="row computer">
                 <div className="col-12">
-                    <img 
-                    src={("img/storebanner/1.png")}
-                    alt="bannerImg"
-                    className="banner">
+                    <img
+                        
+                        src={("/img/storebanner/1.png")}
+                        alt="bannerImg"
+                        className="banner">
                     </img>
                 </div>
             </div>
@@ -34,62 +34,65 @@ class order extends Component {
             {/* 手機版banner */}
             <div class="row phone">
                 <div class="col-12">
-                    <img 
-                    src={("img/storebannermin/1.png")} 
-                    alt="bannerImg" 
-                    class="bannermin">
+                    <img
+                        src={("/img/storebannermin/1.png")}
+                        alt="bannerImg"
+                        class="bannermin">
                     </img>
                 </div>
             </div>
 
             {/* 商店資訊 */}
-
             <div className="row storeBox">
+                {
+                    this.state.storeList.map(store =>
+                        <div className="col-3 storeBox">
+                            <div className="row">
+                                <div className="col-6 storeBoxLogo">
+                                    <img
+                                        src={("/img/logo/1.png")}
+                                        className="storeBoxLogo">
+                                    </img>
+                                </div>
+                                <div className="col-6 storeBoxLogo">
+                                    <img
+                                        src={("/img/icon/buy2.png")}
+                                        alt="buy"
+                                        className="buyjoin d-flex flex-column align-items-center btn-join"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#exampleModaljoin"
+                                        type="button"
+                                        onclick="linkShare">
+                                    </img>
+                                </div>
+                            </div>
+                            <div className="row textstore">
+                                <div className="col-12 textstore">
+                                    <h4 className="storeTitle">米克夏 {store.branch_name}</h4>
+                                </div>
+                                <div className="col-12 textstore">
+                                    <p className="storeContent">
+                                        營業時間:
+                                    </p>
+                                </div>
+                                <div className="col-12 textstore">
+                                    <p className="storeContent">
+                                        聯絡電話:{store.branch_phone}
+                                    </p>
+                                </div>
+                                <div className="col-12 textstore">
+                                    <p className="storeContent">
+                                        地址:{store.branch_address}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )
 
-                <div className="col-3 storeBox">
-                    <div className="row">
-                        <div className="col-6">
-                            <img 
-                            src={("img/logo/1.png")} 
-                            className="storeBoxLogo">
-                            </img>
-                        </div>
-                        <div className="col-6">
-                            <img 
-                            src={("img/icon/buy2.png")} 
-                            alt="buy" 
-                            className="buyjoin d-flex flex-column align-items-center btn-join" 
-                            data-bs-toggle="modal"
-                            data-bs-target="#exampleModaljoin"
-                            type="button"
-                            onclick="linkShare">
-                            </img>
-                        </div>
-                    </div>
-                    <div className="row textstore">
-                        <div className="col-12 textstore">
-                            <h4 className="storeTitle">米克夏 台中市府店</h4>
-                        </div>
-                        <div className="col-12 textstore">
-                            <p className="storeContent">
-                                營業時間:09:30 ~ 20:00
-                            </p>
-                        </div>
-                        <div className="col-12 textstore">
-                            <p className="storeContent">
-                                聯絡電話:
-                            </p>
-                        </div>
-                        <div className="col-12 textstore">
-                            <p className="storeContent">
-                                地址:
-                                {/* {store.branch_address} */}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                }
                 <div className="col-10"></div>
             </div>
+
 
 
 
@@ -121,7 +124,7 @@ class order extends Component {
                                             <div id="qrcode-size"></div>
                                         </div>
                                         <div class="col-6 px-0">
-                                            <img src={("img/logo/1.png")} alt="logo" />
+                                            <img src={("/img/logo/1.png")} alt="logo" />
                                         </div>
                                     </div>
                                 </div>
@@ -131,7 +134,7 @@ class order extends Component {
                 </div>
             </div>
 
-            {/* 菜單 */}
+            {/* 飲料菜單 */}
             <div class="menu">
                 <div class="boxMenu">
                     {/* 按鈕 */}
@@ -148,121 +151,41 @@ class order extends Component {
                             </h3>
                         </div>
                         <div class="row drink">
-                            <div class="col-lg-3 col-md-6 button btn btn-outline-warning" type="button" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal" onClick={this.boxmenu}>
-                                <div class="row">
-                                    <div class="col-8 button ">
-                                        <div class="row">
-                                            <h3 class="buttonTitle">許慶良窯燒桂圓鮮奶茶</h3>
-                                            <div class="row text">
-                                                <div class="col-5">
-                                                    <p class="buttonPrics col">$50</p>
-                                                </div>
-                                                <div class="col-2"></div>
-                                                <div class="col-5">
-                                                    <img src={("img/icon/snowflake.png")} class="cold" alt="cold"></img>
-                                                    <img src={("img/icon/hotsale.png")} class="hot" alt="hot"></img>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4 product">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <img src={("img/drinksimg/1_1.png")} class="productImg"
-                                                    alt="productImg"></img>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            {
+                                this.state.buttonList.map(buttoncard =>
+                                    <div class="col-lg-3 drink col-md-6 drink button btn btn-outline-warning"
+                                        type="button" data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal"
+                                        onClick={this.boxmenu}>
 
-                            <div class="col-lg-3 col-md-6 button btn btn-outline-warning" type="button" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">
-                                <div class="row">
-                                    <div class="col-8 button">
                                         <div class="row">
-                                            <h3 class="buttonTitle">許慶良窯燒桂圓鮮奶茶</h3>
-                                            <div class="row text">
-                                                <div class="col-5">
-                                                    <p class="buttonPrics col">$50</p>
-                                                </div>
-                                                <div class="col-2"></div>
-                                                <div class="col-5">
-                                                    <img src={("img/icon/snowflake.png")} class="cold" alt="cold"></img>
-                                                    <img src={("img/icon/hotsale.png")} class="hot" alt="hot"></img>
+                                            <div class="col-8 button ">
+                                                <div class="row">
+                                                    <h3 class="buttonTitle">{buttoncard.product_name}</h3>
+                                                    <div class="row text">
+                                                        <div class="col-5">
+                                                            <p class="buttonPrics col">${buttoncard.products_price_1}</p>
+                                                        </div>
+                                                        <div class="col-2"></div>
+                                                        <div class="col-5">
+                                                            <img src={("/img/icon/snowflake.png")} class="cold" alt="cold"></img>
+                                                            <img src={("/img/icon/hotsale.png")} class="hot" alt="hot"></img>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4 product">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <img src={("img/drinksimg/1_1.png")} class="productImg"
-                                                    alt="productImg"></img>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-3 col-md-6 button btn btn-outline-warning" type="button" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">
-                                <div class="row">
-                                    <div class="col-8 button">
-                                        <div class="row">
-                                            <h3 class="buttonTitle">許慶良窯燒桂圓鮮奶茶</h3>
-                                            <div class="row text">
-                                                <div class="col-5">
-                                                    <p class="buttonPrics col">$50</p>
-                                                </div>
-                                                <div class="col-2"></div>
-                                                <div class="col-5">
-                                                    <img src={("img/icon/snowflake.png")} class="cold" alt="cold"></img>
-                                                    <img src={("img/icon/hotsale.png")} class="hot" alt="hot"></img>
+                                            <div class="col-4 product">
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <img src={("/img/drinksimg/1_1.png")} class="productImg"
+                                                            alt="productImg"></img>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-4 product">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <img src={("img/drinksimg/1_1.png")} class="productImg"
-                                                    alt="productImg"></img>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-3 col-md-6 button btn btn-outline-warning" type="button" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">
-                                <div class="row">
-                                    <div class="col-8 button">
-                                        <div class="row">
-                                            <h3 class="buttonTitle">許慶良窯燒桂圓鮮奶茶</h3>
-                                            <div class="row text">
-                                                <div class="col-5">
-                                                    <p class="buttonPrics col">$50</p>
-                                                </div>
-                                                <div class="col-2"></div>
-                                                <div class="col-5">
-                                                    <img src={("img/icon/snowflake.png")} class="cold" alt="cold"></img>
-                                                    <img src={("img/icon/hotsale.png")} class="hot" alt="hot"></img>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4 product">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <img src={("img/drinksimg/1_1.png")} class="productImg"
-                                                    alt="productImg"></img>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                )
+                            }
                         </div>
                         <div class="link-top"></div>
                     </div>
@@ -272,7 +195,7 @@ class order extends Component {
             {/* 對話盒Modal */}
             <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg ">
-                    <div class="modal-content">
+                    <div class="modal-content Box">
                         <div class="modal-body">
                             <div class="modal-body">
                                 <div class="container-fluid">
@@ -287,7 +210,7 @@ class order extends Component {
                                             {/* 左側上方圖片 */}
                                             <div class="row">
                                                 <div class="col-12">
-                                                    <img src="img/class/14_782.png" class="clasImg"></img>
+                                                    <img src={("/img/class/1_1.png")} class="clasImg"></img>
                                                 </div>
                                                 <div class="col-12 Text">
                                                     <div class="alert alert-warning" role="alert">
@@ -315,15 +238,15 @@ class order extends Component {
                                                 {/* 尺寸選項 */}
 
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="size" id="medium" value="1"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="size" id="medium" value="1"></input>
                                                     <label class="form-check-label" for="medium">&nbsp;M</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="size" id="large" value="2"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="size" id="large" value="2"></input>
                                                     <label class="form-check-label" for="large">&nbsp;L</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="size" id="bottle" value="3"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="size" id="bottle" value="3"></input>
                                                     <label class="form-check-label" for="bottle">&nbsp;瓶</label>
                                                 </div>
 
@@ -347,27 +270,27 @@ class order extends Component {
                                             <div class="row temperaturecheck">
                                                 {/* 溫度選項 */}
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="temperature" id="lessIce" value="1"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="temperature" id="lessIce" value="1"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;少冰</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="temperature" id="low" value="2"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="temperature" id="low" value="2"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;微冰</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="temperature" id="noIce" value="3"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="temperature" id="noIce" value="3"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;去冰</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="temperature" id="normal" value="4"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="temperature" id="normal" value="4"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;正常</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="temperature" id="roomTemperature" value="5"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="temperature" id="roomTemperature" value="5"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;溫</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="temperature" id="hot" value="6"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="temperature" id="hot" value="6"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;熱</label>
                                                 </div>
                                             </div>
@@ -389,23 +312,23 @@ class order extends Component {
                                             <div class="row sugarinesscheck">
                                                 {/* 甜度選項 */}
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="sugariness" id="lessSugar" value="1"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="sugariness" id="lessSugar" value="1"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;少糖</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="sugariness" id="halfSugar" value="2"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="sugariness" id="halfSugar" value="2"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;半糖</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="sugariness" id="standard" value="3"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="sugariness" id="standard" value="3"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;標準</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="sugariness" id="lightSugar" value="4"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="sugariness" id="lightSugar" value="4"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;微糖</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="radio" name="sugariness" id="noSugar" value="5"></input>
+                                                    <input class="classNameform-check-input checkInput" type="radio" name="sugariness" id="noSugar" value="5"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;無糖</label>
                                                 </div>
                                             </div>
@@ -427,27 +350,27 @@ class order extends Component {
                                             <div class="row sugarinesscheck">
                                                 {/* 配料選項 */}
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="checkbox" name="ingredients" id="grass" value="1"></input>
+                                                    <input class="classNameform-check-input checkInput" type="checkbox" name="ingredients" id="grass" value="1"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;仙草</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="checkbox" name="ingredients" id="balls" value="2"></input>
+                                                    <input class="classNameform-check-input checkInput" type="checkbox" name="ingredients" id="balls" value="2"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;珍珠</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                    <input class="classNameform-check-input checkInput" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;芋圓</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="checkbox" name="ingredients" id="redBeans" value="4"></input>
+                                                    <input class="classNameform-check-input checkInput" type="checkbox" name="ingredients" id="redBeans" value="4"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;紅豆</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="checkbox" name="ingredients" id="pidding" value="5"></input>
+                                                    <input class="classNameform-check-input checkInput" type="checkbox" name="ingredients" id="pidding" value="5"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;布丁</label>
                                                 </div>
                                                 <div class="col-4 form-check">
-                                                    <input class="form-check-input" type="checkbox" name="ingredients" id="konjacjelly" value="6"></input>
+                                                    <input class="classNameform-check-input checkInput" type="checkbox" name="ingredients" id="konjacjelly" value="6"></input>
                                                     <label class="form-check-label" for="flexRadioDefault1">&nbsp;愛玉</label>
                                                 </div>
                                             </div>
@@ -494,13 +417,22 @@ class order extends Component {
         ); // end of redner()
     }
 
-    // 元件掛載撈資料
+    // 撈資料
     componentDidMount = async () => {
-        var result = await axios.get("http://localhost:8000/index/order/9");
+
+        // 分店資訊
+        var result = await axios.get("http://localhost:8000/order/store/3");
         var newState = { ...this.state };
         newState.storeList = result.data;
         this.setState(newState);
-        console.log(result);
+
+        // 下方全部飲料
+        var result = await axios.get("http://localhost:8000/order/drink/3");
+        var newState = { ...this.state };
+        newState.buttonList = result.data;
+        this.setState(newState);
+        //console.log(result);
+        // console.log(newState);
     }
 
 
@@ -508,6 +440,8 @@ class order extends Component {
     boxmenu = function (e) {
         alert('ok');
     }
+
+
 
 
 }
