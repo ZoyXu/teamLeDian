@@ -6,7 +6,6 @@
 
 
 
-
 /* 電腦banner */
 @media (min-width: 991px) {
     .col-12 .banner {
@@ -47,14 +46,14 @@
     color: #333;
 }
 
-.btn-join {
+/* .btn-join {
     background-color: #003c95;
-    /* border-radius: 50%; */
+    border-radius: 50%;
     color: #ffff;
     border: none;
-    /* padding: 5px 15px; */
+    padding: 5px 15px;
     font-size: 18pt;
-}
+} */
 
 .icon-join {
     max-width: 30px;
@@ -149,6 +148,7 @@
         background-color: rgba(232, 232, 232, 0.6);
         border-radius: 15px;
         padding: 10px;
+        padding-top: 22px;
         box-shadow: -2px 6px 7px 0px rgba(0, 0, 0, 0.3);
     }
 
@@ -173,6 +173,7 @@
 
 .title1 {
     font-family: "FakePearl-SemiBold";
+    margin-top: 30px;
 }
 
 .boxMenu {
@@ -210,8 +211,6 @@
     margin: -3px;
     padding-left: 50px;
 }
-
-
 
 
 
@@ -342,12 +341,12 @@
     /* padding-left: 30px; */
 }
 
-.modal-content.Box {
+.modal-content {
     border-color: #F2AF21 !important;
     border-width: 8px !important;
 }
 
-.modal-content.Box {
+.modal-content {
     border-radius: 36px !important;
 }
 
@@ -356,7 +355,7 @@
     justify-content: center;
 }
 
-/* 備註框 */
+/* 備註匡 */
 .col-12.Text {
     /* background-color:rgba(245,175,33,0.3); */
     margin-top: 20px;

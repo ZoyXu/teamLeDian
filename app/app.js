@@ -393,24 +393,36 @@ app.get("/order/store/3",function(req,res){
 })
 
 
-// 下方全部飲料資訊 
-app.get("/order/drink/3",function(req,res){
-  // res.send('ok');
-  conn.query("select * from products WHERE brand_id=1" , [ ],
-      function(err,rows) {
-          res.send(JSON.stringify(rows));
-      }
-  )
-})
+// // 下方全部飲料資訊 
+// app.get("/order/drink/3",function(req,res){
+//   // res.send('ok');
+//   conn.query("select * from products WHERE brand_id=1" , [ ],
+//       function(err,rows) {
+//           res.send(JSON.stringify(rows));
+//       }
+//   )
+// })
 
-// 依照分類所找尋的飲料
+// 分類表
 app.get("/order/categories/3",function(req,res){
-  conn.query("SELECT * FROM categories LEFT join products on products.category_id = categories.category_id WHERE products.brand_id=1" , [],
+  conn.query("SELECT * FROM categories LEFT join products on products.category_id = categories.category_id WHERE products.category_id =1" , [],
     function(err,rows) {
       res.send(JSON.stringify(rows));
     }
   )
 })
+
+
+// 依照第一分類所找尋的飲料
+app.get("/order/categories1/3",function(req,res){
+  conn.query("SELECT * FROM categories LEFT join products on products.category_id = categories.category_id WHERE products.category_id =1" , [],
+    function(err,rows) {
+      res.send(JSON.stringify(rows));
+    }
+  )
+})
+
+
 
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
