@@ -11,11 +11,11 @@ class order extends Component {
         brandInfo: {},
         productList: [],
         categoriesList: [],
-        productInfo:{},
+        productInfo: {},
 
     }
 
-    
+
     // 元件掛載撈資料
     componentDidMount = async () => {
         var resultStore = await Axios.get(`http://localhost:8000/order/branch/${this.props.match.params.id}`);
@@ -33,16 +33,16 @@ class order extends Component {
         console.log(this.state);
     }
 
-    getProductInfo = ()=>{
-        
+    getProductInfo = () => {
+
     }
 
     render() {
         const brandInfo = this.state.brandInfo
         const storeInfo = this.state.storeInfo
         const day = new Date().getDay();
-        const openTime = [storeInfo.Sun_start,storeInfo.Mon_start,storeInfo.Tue_start,storeInfo.Wed_start,storeInfo.Thu_start,storeInfo.Fri_start,storeInfo.Sat_start]
-        const closeTime = [storeInfo.Sun_end,storeInfo.Mon_end,storeInfo.Tue_end,storeInfo.Wed_end,storeInfo.Thu_end,storeInfo.Fri_end,storeInfo.Sat_end]
+        const openTime = [storeInfo.Sun_start, storeInfo.Mon_start, storeInfo.Tue_start, storeInfo.Wed_start, storeInfo.Thu_start, storeInfo.Fri_start, storeInfo.Sat_start]
+        const closeTime = [storeInfo.Sun_end, storeInfo.Mon_end, storeInfo.Tue_end, storeInfo.Wed_end, storeInfo.Thu_end, storeInfo.Fri_end, storeInfo.Sat_end]
 
 
         return (<React.Fragment>
@@ -53,10 +53,10 @@ class order extends Component {
             {/* 電腦版banner */}
             <div className="row computer">
                 <div className="col-12">
-                    <img 
-                    src={(`/img/storebanner/${brandInfo.brand_id}.png`)}
-                    alt="bannerImg"
-                    className="banner">
+                    <img
+                        src={(`/img/storebanner/${brandInfo.brand_id}.png`)}
+                        alt="bannerImg"
+                        className="banner">
                     </img>
                 </div>
             </div>
@@ -64,10 +64,10 @@ class order extends Component {
             {/* 手機版banner */}
             <div className="row phone">
                 <div className="col-12">
-                    <img 
-                    src={(`/img/storebannermin/${brandInfo.brand_id}.png`)} 
-                    alt="bannerImg" 
-                    className="bannermin">
+                    <img
+                        src={(`/img/storebannermin/${brandInfo.brand_id}.png`)}
+                        alt="bannerImg"
+                        className="bannermin">
                     </img>
                 </div>
             </div>
@@ -80,22 +80,22 @@ class order extends Component {
                     <div className="row">
                         <div className='col-1'></div>
                         <div className="col-3">
-                            <img 
-                            src={(`/img/logo/${brandInfo.brand_id}.png`)} 
-                            className="storeBoxLogo"
-                            alt='brandLogo'
+                            <img
+                                src={(`/img/logo/${brandInfo.brand_id}.png`)}
+                                className="storeBoxLogo"
+                                alt='brandLogo'
                             >
                             </img>
                         </div>
-                       
+
                         <div className="col-3">
-                            <img 
-                            src={("/img/icon/buy2.png")} 
-                            alt="buy" 
-                            className="buyjoin d-flex flex-column align-items-cente" 
-                            data-bs-toggle="modal"
-                            data-bs-target="#exampleModaljoin"
-                            type="button"
+                            <img
+                                src={("/img/icon/buy2.png")}
+                                alt="buy"
+                                className="buyjoin d-flex flex-column align-items-cente"
+                                data-bs-toggle="modal"
+                                data-bs-target="#exampleModaljoin"
+                                type="button"
                             // onClick="linkShare"
                             >
                             </img>
@@ -108,7 +108,7 @@ class order extends Component {
                         </div>
                         <div className="col-12 textstore">
                             <p className="storeContent">
-                                營業時間:{openTime[day]=="店休"?"店休":openTime[day]}~{closeTime[day]=="店休"?"店休":closeTime[day]}
+                                營業時間:{openTime[day] == "店休" ? "店休" : openTime[day]}~{closeTime[day] == "店休" ? "店休" : closeTime[day]}
                             </p>
                         </div>
                         <div className="col-12 textstore">
@@ -172,68 +172,74 @@ class order extends Component {
                     {/* 按鈕 */}
                     <div className="container">
                         {/* 第一段 */}
-                        {this.state.categoriesList.map((category)=>{
-                            return(<React.Fragment key={category.category_id}>
+                        {this.state.categoriesList.map((category) => {
+                            return (<React.Fragment key={category.category_id}>
                                 <div className="row">
-                                <h3 className="title1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        className="bi bi-suit-heart-fill" viewBox="0 0 16 16">
-                                        <path
-                                            d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1" />
-                                    </svg>
-                                    {category.category_name}
-                                </h3>
-                            </div>  
-                            <div className="row drink">
-                            {this.state.productList.map((product)=>{
-                                if(product.category_id == category.category_id){
-                                return (
-                                    <div className="col-lg-3 drink col-md-6 drink button btn btn-outline-warning" type="button" data-bs-toggle="modal"  key={product.product_id} id={product.product_id}
-                                    data-bs-target="#exampleModal" onClick={()=>{this.boxmenu(product.product_id)}}>  
-                                    <div className="row">
-                                        <div className="col-8 button ">
-                                            <div className="row">
-                                                <h3 className="buttonTitle">{product.product_name}</h3>
-                                                <div className="row text">
-                                                    <div className="col-5">
-                                                        <p className="buttonPrics col">${product.products_price_0?product.products_price_0:product.products_price_1}</p>
-                                                    </div>
-                                                    <div className="col-2"></div>
-                                                    <div className="col-5">
-                                                        {
-                                                            product.choose_size_0 == 1 | product.choose_size_0 == 3| product.choose_size_0 == 4|product.choose_size_1 == 1 | product.choose_size_1 == 3 |product.choose_size_1 == 4
-                                                            |product.choose_size_2 == 1 | product.choose_size_2 == 3| product.choose_size_0 == 4?<img src={("/img/icon/snowflake.png")} className="cold" alt="cold"></img>:null
-                                                        }
-                                                        {
-                                                            product.choose_size_0 == 2 | product.choose_size_0 == 3| product.choose_size_0 == 5|product.choose_size_1 == 2 | product.choose_size_1 == 3 |product.choose_size_1 == 5
-                                                            |product.choose_size_2 == 2 | product.choose_size_2 == 3| product.choose_size_0 == 5?<img src={("/img/icon/hotsale.png")} className="hot" alt="hot"></img>:null
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-4 product">
-                                            <div className="row">
-                                                <div className="col-12">
-                                                    <img src={(`/img/drinksimg/${product.product_img}.png`)} className="productImg"
-                                                        alt="productImg"></img>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <h3 className="title1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            className="bi bi-suit-heart-fill" viewBox="0 0 16 16">
+                                            <path
+                                                d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1" />
+                                        </svg>
+                                        {category.category_name}
+                                    </h3>
+                                    <div className="link-top"></div>
                                 </div>
-                              )}
-                         })} </div></React.Fragment>
+                                <div className="row drink">
+                                    {this.state.productList.map((product) => {
+                                        if (product.category_id == category.category_id) {
+                                            return (
+                                                <div className="col-lg-3 drink col-md-6 drink button btn btn-outline-warning" type="button" data-bs-toggle="modal" key={product.product_id} id={product.product_id}
+                                                    data-bs-target="#exampleModal" onClick={() => { this.boxmenu(product.product_id) }}>
+                                                    <div className="row">
+                                                        <div className="col-8 button ">
+                                                            <div className="row">
+                                                                <h3 className="buttonTitle">{product.product_name}</h3>
+                                                                <div className="row text">
+                                                                    <div className="col-5">
+                                                                        <p className="buttonPrics col">${product.products_price_0 ? product.products_price_0 : product.products_price_1}</p>
+                                                                    </div>
+                                                                    <div className="col-2"></div>
+                                                                    <div className="col-5">
+                                                                        {
+                                                                            product.choose_size_0 == 1 | product.choose_size_0 == 3 | product.choose_size_0 == 4 | product.choose_size_1 == 1 | product.choose_size_1 == 3 | product.choose_size_1 == 4
+                                                                                | product.choose_size_2 == 1 | product.choose_size_2 == 3 | product.choose_size_0 == 4 ? <img src={("/img/icon/snowflake.png")} className="cold" alt="cold"></img> : null
+                                                                        }
+                                                                        {
+                                                                            product.choose_size_0 == 2 | product.choose_size_0 == 3 | product.choose_size_0 == 5 | product.choose_size_1 == 2 | product.choose_size_1 == 3 | product.choose_size_1 == 5
+                                                                                | product.choose_size_2 == 2 | product.choose_size_2 == 3 | product.choose_size_0 == 5 ? <img src={("/img/icon/hotsale.png")} className="hot" alt="hot"></img> : null
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="col-4 product">
+                                                            <div className="row">
+                                                                <div className="col-12">
+                                                                    <img src={(`/img/drinksimg/${product.product_img}.png`)} className="productImg"
+                                                                        alt="productImg"></img>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )
+                                        }
+                                        
+                                    })} </div></React.Fragment>
+                                    
                             )
 
                         })}
-
-
-
-                        <div className="link-top"></div>
                     </div>
                 </div>
             </div>
+
+
+
+
+
+
 
             {/* 對話盒Modal */}
             <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -456,6 +462,28 @@ class order extends Component {
                     </div>
                 </div>
             </div>
+
+
+
+            {/* 購物車吐司訊息 */}
+            {/* <button type="button" className="btn btn-primary" id="liveToastBtn">Show live toast</button>
+
+            <div className="position-fixed bottom-0 end-0 p-3">
+                <div id="liveToast" className="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div className="toast-header">
+                        <img src="..." className="rounded me-2" alt="...">
+                            <strong className="me-auto">Bootstrap</strong>
+                            <small>11 mins ago</small>
+                            <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </img>
+                    </div>
+                    <div className="toast-body">
+                        Hello, world! This is a toast message.
+                    </div>
+                </div>
+            </div> */}
+
+
         </React.Fragment >
         ); // end of redner()
     }
@@ -464,6 +492,18 @@ class order extends Component {
     boxmenu = function (e) {
         console.log(e)
     }
+
+
+    // toastEl = function() {
+    //     var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    //     var toastList = toastElList.map(function (toastEl) {
+    //       return new bootstrap.Toast(toastEl, option)
+    //     })
+    // }
+
+    
+
+    
 
 
 }
