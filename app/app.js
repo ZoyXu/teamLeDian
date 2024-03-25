@@ -382,47 +382,69 @@ app.get("/dian/score_3.0", function (req, res) {
   );
 });
 
-// 分店資訊 連結資料庫,(路由先寫死)
-app.get("/order/store/3",function(req,res){
+// 訂購頁面連資料庫
+app.get("/order/branch/:id", function (req, res) {
   // res.send('ok');
-  conn.query("SELECT * FROM branch LEFT join brand on branch.brand_id = brand.brand_id WHERE branch.branch_id=1" , [ ],
-      function(err,rows) {
-          res.send(JSON.stringify(rows));
-      }
-  )
-})
+  conn.query(
+    "SELECT * FROM branch WHERE branch_id=?",
+    [req.params.id],
+    function (err, rows) {
+      res.send(JSON.stringify(rows));
+    }
+  );
+});
 
+app.get("/order/brand/:id", function (req, res) {
+  // res.send('ok');
+  conn.query(
+    "SELECT * FROM brand WHERE brand_id=?",
+    [req.params.id],
+    function (err, rows) {
+      res.send(JSON.stringify(rows));
+    }
+  );
+});
 
-// // 下方全部飲料資訊 
-// app.get("/order/drink/3",function(req,res){
-//   // res.send('ok');
-//   conn.query("select * from products WHERE brand_id=1" , [ ],
-//       function(err,rows) {
-//           res.send(JSON.stringify(rows));
-//       }
-//   )
+app.get("/order/product/:id", function (req, res) {
+  // res.send('ok');
+  conn.query(
+    "SELECT * FROM products WHERE brand_id=?",
+    [req.params.id],
+    function (err, rows) {
+      res.send(JSON.stringify(rows));
+    }
+  );
+});
+app.get("/product/:id", function (req, res) {
+  // res.send('ok');
+  conn.query(
+    "SELECT * FROM products WHERE product_id=?",
+    [req.params.id],
+    function (err, rows) {
+      res.send(JSON.stringify(rows));
+    }
+  );
+});
+
+app.get("/categories/:id", function (req, res) {
+  // res.send('ok');
+  conn.query(
+    "SELECT * FROM categories WHERE brand_id=?",
+    [req.params.id],
+    function (err, rows) {
+      res.send(JSON.stringify(rows));
+    }
+  );
+});
+// 訂購頁面拿取尺寸資料
+// app.get("/index/order/9",function(req,res){
+//     // res.send('ok');
+//     conn.query("select*from brand,sizes where brand.brand_id = sizes.brand_id", [ ],
+//         function(err,rows) {
+//             res.send(JSON.stringify(rows));
+//         }
+//     )
 // })
-
-// 分類表
-app.get("/order/categories/3",function(req,res){
-  conn.query("SELECT * FROM categories LEFT join products on products.category_id = categories.category_id WHERE products.category_id =1" , [],
-    function(err,rows) {
-      res.send(JSON.stringify(rows));
-    }
-  )
-})
-
-
-// 依照第一分類所找尋的飲料
-app.get("/order/categories1/3",function(req,res){
-  conn.query("SELECT * FROM categories LEFT join products on products.category_id = categories.category_id WHERE products.category_id =1" , [],
-    function(err,rows) {
-      res.send(JSON.stringify(rows));
-    }
-  )
-})
-
-
 
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
