@@ -46,6 +46,20 @@
     color: #333;
 }
 
+.col-7.buy {
+    background-color: #ededed;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center; 
+    align-items: flex-start;
+}
+
+.buytext {
+    display: flex;
+    justify-content: center; 
+    margin-top: 12px;
+}
+
 .text-title-b {
     font-size: 22px;
     font-weight: 600;
@@ -97,8 +111,8 @@
 }
 
 .buyjoin {
-    width: 60px;
-    border-radius: 100px;
+    width: 50px;
+    padding-top: 5px;
 }
 
 
@@ -355,14 +369,12 @@
     /* padding-left: 30px; */
 }
 
-.modal-content {
+.modal-content.join {
     border-color: #F2AF21 !important;
     border-width: 8px !important;
-}
-
-.modal-content {
     border-radius: 36px !important;
 }
+
 
 .row.sizetitle {
     flex: auto;
@@ -519,4 +531,10 @@ svg {
 
 .position-fixed.bottom-0.end-0.p-3 {
     z-index: 5;
+}
+
+/* checkbox */
+.form-check-input.order:checked {
+    background-color:#F2AF21 !important;
+    border-color:#F2AF21 !important;
 }

@@ -8,6 +8,7 @@ import { HiOutlineShoppingBag } from "react-icons/hi";
 import { PiMedal } from "react-icons/pi";
 import { PiCoins } from "react-icons/pi";
 import { GiCancel } from "react-icons/gi";
+import { Newspaper } from 'react-bootstrap-icons';
 
 
 
@@ -20,7 +21,11 @@ class order extends Component {
         productList: [],
         categoriesList: [],
         productInfo: {},
-
+        // 對話盒菜單資料
+        modelInfo: {}, // 存儲所有的飲料信息
+        resultModal: null,
+        selectedProduct: {}, // 選擇的飲料的訊息
+        modelproductsize: {}, // 對話盒的商品尺寸
     }
 
 
@@ -30,15 +35,34 @@ class order extends Component {
         var resultBrand = await Axios.get(`http://localhost:8000/order/brand/${resultStore.data[0].brand_id}`);
         var resultProduct = await Axios.get(`http://localhost:8000/order/product/${resultStore.data[0].brand_id}`);
         var resultCategories = await Axios.get(`http://localhost:8000/categories/${resultStore.data[0].brand_id}`);
+        // 對話盒菜單資料  從資料庫獲取飲料和配料的信息
+        var resultModal = await Axios.get(`http://localhost:8000/order/modelproduct/${resultStore.data[0].brand_id}`);
+        // alert(JSON.stringify(resultModal))
+
+        // 對話盒商品尺寸
+        var resultproductsize = await Axios.get(`http://localhost:8000/order/modelproductsize/${resultStore.data[0].brand_id}`);
+
+
 
         var newState = { ...this.state };
         newState.storeInfo = resultStore.data[0];
         newState.brandInfo = resultBrand.data[0];
         newState.productList = resultProduct.data;
         newState.categoriesList = resultCategories.data;
+        newState.resultModal = resultModal.data;
+        // 對話盒菜單  獲取的飲料訊息
+        newState.modelInfo = resultModal.data;
+        // console.log(resultModal.data);
+
+        // 對話盒商品尺寸
+        newState.modelproductsize = resultproductsize.data;
+        console.log(resultproductsize.data);
+
 
         this.setState(newState);
-        console.log(this.state);
+        //console.log(this.state);
+
+
     }
 
     getProductInfo = () => {
@@ -52,11 +76,16 @@ class order extends Component {
         const day = new Date().getDay();
         const openTime = [storeInfo.Sun_start, storeInfo.Mon_start, storeInfo.Tue_start, storeInfo.Wed_start, storeInfo.Thu_start, storeInfo.Fri_start, storeInfo.Sat_start]
         const closeTime = [storeInfo.Sun_end, storeInfo.Mon_end, storeInfo.Tue_end, storeInfo.Wed_end, storeInfo.Thu_end, storeInfo.Fri_end, storeInfo.Sat_end]
+        // if (this.state.resultModal !== null) {
+        //     alert(JSON.stringify(this.state.resultModal));
+        // }
+
+
 
 
         return (<React.Fragment>
 
-
+            {/* header */}
             <div id='orderheader'>
                 <div id='header'
                     style={{
@@ -67,7 +96,7 @@ class order extends Component {
                     <div className='col-7 col-sm-7 col-md-6 col-xl-5 d-flex ms-2 justify-content-between align-items-center'>
                         <div id='menu' className='col-8'><h2 className='btn text-start  my-auto fs-4' onClick={this.toggleMenuNav}>☰</h2></div>
                         <h4 id='homeBtn' className='my-auto btn' onClick={() => { window.location = "/index" }}><img id='logo' src='/img/index/LeDian_LOGO-05.png' alt='logo'></img></h4>
-                        <h4 className='my-auto p-0 btn headerText menuBtn d-flex align-items-center justify-content-center'><HiOutlineShoppingBag className='fs-4' />購物車</h4>
+                        <h4 className='my-auto p-0 btn headerText menuBtn d-flex align-items-center justify-content-center' onClick={this.cartMenuClick}><HiOutlineShoppingBag className='fs-4' />購物車</h4>
                         <h4 className='my-auto p-0 btn headerText menuBtn d-flex align-items-center justify-content-center' onClick={() => { window.location = "/brand" }}><PiMedal className='fs-4' />品牌專區</h4>
                         <h4 className='my-auto p-0 btn headerText menuBtn d-flex align-items-center justify-content-center' onClick={this.pointinfoShow}><PiCoins className='fs-4' />集點資訊</h4>
                     </div>
@@ -92,26 +121,12 @@ class order extends Component {
                         </div>
                     </div>
                 </div>
-
-            </div>
-            {/* <div id='menuNav' className='menuNav d-flex flex-column align-items-center'>
-                <h4 className='menuText my-3 mainColor border-bottom border-secondary'><HiOutlineShoppingBag className='fs-4' />購物車</h4>
-                <h4 className='menuText my-3 mainColor border-bottom border-secondary' onClick={() => { window.location = "/brand" }}><PiMedal className='fs-4' />品牌專區</h4>
-                <h4 className='menuText my-3 mainColor border-bottom border-secondary' onClick={this.pointinfoShow}><PiCoins className='fs-4' />集點資訊</h4>
-            </div> */}
-
-
-
-            {/* <div id='banner' className='d-flex justify-content-center'><img id='bannerImg' src={("/img/index/Home_Banner_01.jpg")} alt='homeBanner' className='img-fluid'></img></div> */}
-            {/* <div className="container">
-                <div className='navbar row'>
-                    <div className='navImg col-4 btn' onClick={() => { window.location = "/le" }}><img src={("/img/index/LeDian_BANNER-01.jpg")} alt='navImg' className='img-fluid'></img></div>
-                    <div className='navImg col-4 btn' onClick={() => { window.location = "/dian" }}><img src={("/img/index/LeDian_BANNER-02.jpg")} alt='navImg' className='img-fluid'></img></div>
-                    <div className='navImg col-4 btn' onClick={() => { window.location = "/news" }}><img src={("/img/index/LeDian_BANNER-05.jpg")} alt='navImg' className='img-fluid'></img></div>
+                <div id='menuNav' className='menuNav d-flex flex-column align-items-center'>
+                    <h4 className='menuText my-3 mainColor border-bottom border-secondary' onClick={this.cartMenuClick}><HiOutlineShoppingBag className='fs-4' />購物車</h4>
+                    <h4 className='menuText my-3 mainColor border-bottom border-secondary' onClick={() => { window.location = "/brand" }}><PiMedal className='fs-4' />品牌專區</h4>
+                    <h4 className='menuText my-3 mainColor border-bottom border-secondary' onClick={this.pointinfoShow}><PiCoins className='fs-4' />集點資訊</h4>
                 </div>
-                <h2 className='text-center mainColor m-2'>附近店家</h2>
-            </div> */}
-
+            </div>
 
             {/* 電腦版banner */}
             <div className="row computer">
@@ -151,19 +166,17 @@ class order extends Component {
                             </img>
                         </div>
 
-                        <div className="col-3">
+                        <div className="col-7 buy btn-light" type="button" data-bs-toggle="modal" data-bs-target="#exampleModaljoin" >
                             <img
-                                src={("/img/icon/buy2.png")}
+                                src={("/img/icon/buy.png")}
                                 alt="buy"
                                 className="buyjoin d-flex flex-column align-items-cente"
-                                data-bs-toggle="modal"
-                                data-bs-target="#exampleModaljoin"
-                                type="button"
                             // onClick="linkShare"
                             >
                             </img>
+                            <h3 className='buytext'> 揪團訂購 </h3>
                         </div>
-                        <div className='col-3'></div>
+                        <div className='col-1'></div>
                     </div>
                     <div className="row textstore">
                         <div className="col-12 textstore">
@@ -196,7 +209,7 @@ class order extends Component {
             <div className="modal fade join" id="exampleModaljoin" tabIndex="-1" aria-labelledby="exampleModalLabel"
                 aria-hidden="true">
                 <div className="modal-dialog">
-                    <div className="modal-content join-box">
+                    <div className="modal-content join join-box">
                         <div className="modal-header d-flex justify-content-center pb-0 border-0">
                             <h5 className="modal-title text-title-b" id="exampleModaljoin">
                                 揪團分享！
@@ -299,195 +312,208 @@ class order extends Component {
             </div>
 
 
-
-
-
-
-
             {/* 對話盒Modal */}
             <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-lg ">
-                    <div className="modal-content">
+                    <div className="modal-content join">
                         <div className="modal-body">
                             <div className="modal-body">
                                 <div className="container-fluid">
-                                    <div className="row">
-                                        <div className="col-6 modaltop">
-                                            <h3 className="modalTitle">許慶良窯燒桂圓鮮奶茶</h3>
+
+                                    {this.state.resultModal &&
+                                        <div className="row">
+                                            <div className="col-6 modaltop">
+                                                <h3 className="modalTitle">{this.state.selectedProduct.product_name}</h3>
+                                            </div>
+                                            <div className="col-6 modaltop"></div>
                                         </div>
-                                        <div className="col-6 modaltop"></div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-md-5">
-                                            {/* 左側上方圖片 */}
-                                            <div className="row">
-                                                <div className="col-12">
-                                                    <img src="img/className/14_782.png" className="clasImg"></img>
+                                    }
+
+                                    {this.state.resultModal &&
+                                        <div className="row">
+                                            <div className="col-md-5">
+                                                {/* 左側上方圖片 */}
+                                                <div className="row">
+                                                    <div className="col-12">
+                                                        <img src={(`/img/drinksimg/${this.state.selectedProduct.product_img}.png`)} className="productImg" alt="productImg"></img>
+                                                    </div>
+                                                    <div className="col-12 Text">
+                                                        <div className="alert alert-warning" role="alert">
+                                                            <p className='notetext'>{this.state.selectedProduct.brand_note}</p>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div className="col-12 Text">
-                                                    <div className="alert alert-warning" role="alert">
-                                                        *脆啵啵球配料冷飲限定口感佳（常溫/溫/熱恕不開放加料<br></br>
-                                                        *小圓仔配料建議冷/溫飲
+                                            </div>
+                                            <div className="col-md-7 modalRight">
+                                                {/* 右側尺寸 */}
+                                                <div className="row sizetitle">
+                                                    <div className="col-4 text">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                            fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16">
+                                                            <path
+                                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                                        </svg>
+                                                        尺寸
+                                                    </div>
+                                                    <div className="col-4"></div>
+                                                    <div className="col-4"></div>
+                                                </div>
+
+                                                {/* 尺寸選項 */}
+                                                {
+                                                    this.state.modelproductsize &&
+                                                    <div className="row sizecheck">
+
+                                                        {this.state.selectedProduct.products_price_0?                                                     
+                                                        <div className="col-4 form-check">
+                                                            <input className="form-check-input order order" type="radio" name="size" id="medium" value="1"></input>
+                                                            <label className="form-check-label" for="medium">&nbsp;
+                                                            {this.state.modelproductsize.size_0_name}
+                                                            </label>
+                                                        </div>:null}
+
+                                                        {this.state.selectedProduct.products_price_1?                                                     
+                                                        <div className="col-4 form-check">
+                                                            <input className="form-check-input order order" type="radio" name="size" id="medium" value="1"></input>
+                                                            <label className="form-check-label" for="medium">&nbsp;
+                                                            {this.state.modelproductsize.size_1_name}
+                                                            </label>
+                                                        </div>:null}                                                        
+                                                        {this.state.selectedProduct.products_price_2?                                                     
+                                                        <div className="col-4 form-check">
+                                                            <input className="form-check-input order order" type="radio" name="size" id="medium" value="1"></input>
+                                                            <label className="form-check-label" for="medium">&nbsp;
+                                                            {this.state.modelproductsize.size_2_name}
+                                                            </label>
+                                                        </div>:null}
+                                                    </div>
+
+                                                }
+
+                                                <div className="row temperaturetitle">
+                                                    {/* 溫度 */}
+                                                    <div className="col-4 text">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                            fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16">
+                                                            <path
+                                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                                        </svg>
+                                                        溫度
+                                                    </div>
+                                                    <div className="col-4"></div>
+                                                    <div className="col-4"></div>
+                                                </div>
+                                                <div className="row temperaturecheck">
+                                                    {/* 溫度選項 */}
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;少冰</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="low" value="2"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;微冰</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="noIce" value="3"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;去冰</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="normal" value="4"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;正常</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="roomTemperature" value="5"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;溫</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="hot" value="6"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;熱</label>
+                                                    </div>
+                                                </div>
+
+
+                                                <div className="row sugarinesstitle">
+                                                    {/* 甜度 */}
+                                                    <div className="col-4 text">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                            fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16">
+                                                            <path
+                                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                                        </svg>
+                                                        甜度
+                                                    </div>
+                                                    <div className="col-4"></div>
+                                                    <div className="col-4"></div>
+                                                </div>
+                                                <div className="row sugarinesscheck">
+                                                    {/* 甜度選項 */}
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="sugariness" id="lessSugar" value="1"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;少糖</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="sugariness" id="halfSugar" value="2"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;半糖</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="sugariness" id="standard" value="3"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;標準</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="sugariness" id="lightSugar" value="4"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;微糖</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;無糖</label>
+                                                    </div>
+                                                </div>
+
+
+                                                <div className="row sugarinesstitle">
+                                                    {/* 配料 */}
+                                                    <div className="col-4 text">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                            fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16">
+                                                            <path
+                                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                                        </svg>
+                                                        配料
+                                                    </div>
+                                                    <div className="col-4"></div>
+                                                    <div className="col-4"></div>
+                                                </div>
+                                                <div className="row sugarinesscheck">
+                                                    {/* 配料選項 */}
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="grass" value="1"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;仙草</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="balls" value="2"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;珍珠</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;芋圓</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="redBeans" value="4"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;紅豆</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="pidding" value="5"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;布丁</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="konjacjelly" value="6"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;愛玉</label>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="col-md-7 modalRight">
-                                            {/* 右側尺寸 */}
-                                            <div className="row sizetitle">
-                                                <div className="col-4 text">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                        fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16">
-                                                        <path
-                                                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                                    </svg>
-                                                    尺寸
-                                                </div>
-                                                <div className="col-4"></div>
-                                                <div className="col-4"></div>
-                                            </div>
-                                            <div className="row sizecheck">
-                                                {/* 尺寸選項 */}
+                                    }
 
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="size" id="medium" value="1"></input>
-                                                    <label className="form-check-label" for="medium">&nbsp;M</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="size" id="large" value="2"></input>
-                                                    <label className="form-check-label" for="large">&nbsp;L</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="size" id="bottle" value="3"></input>
-                                                    <label className="form-check-label" for="bottle">&nbsp;瓶</label>
-                                                </div>
-
-                                            </div>
-
-
-
-                                            <div className="row temperaturetitle">
-                                                {/* 溫度 */}
-                                                <div className="col-4 text">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                        fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16">
-                                                        <path
-                                                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                                    </svg>
-                                                    溫度
-                                                </div>
-                                                <div className="col-4"></div>
-                                                <div className="col-4"></div>
-                                            </div>
-                                            <div className="row temperaturecheck">
-                                                {/* 溫度選項 */}
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="temperature" id="lessIce" value="1"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;少冰</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="temperature" id="low" value="2"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;微冰</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="temperature" id="noIce" value="3"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;去冰</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="temperature" id="normal" value="4"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;正常</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="temperature" id="roomTemperature" value="5"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;溫</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="temperature" id="hot" value="6"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;熱</label>
-                                                </div>
-                                            </div>
-
-
-                                            <div className="row sugarinesstitle">
-                                                {/* 甜度 */}
-                                                <div className="col-4 text">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                        fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16">
-                                                        <path
-                                                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                                    </svg>
-                                                    甜度
-                                                </div>
-                                                <div className="col-4"></div>
-                                                <div className="col-4"></div>
-                                            </div>
-                                            <div className="row sugarinesscheck">
-                                                {/* 甜度選項 */}
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="sugariness" id="lessSugar" value="1"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;少糖</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="sugariness" id="halfSugar" value="2"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;半糖</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="sugariness" id="standard" value="3"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;標準</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="sugariness" id="lightSugar" value="4"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;微糖</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="radio" name="sugariness" id="noSugar" value="5"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;無糖</label>
-                                                </div>
-                                            </div>
-
-
-                                            <div className="row sugarinesstitle">
-                                                {/* 配料 */}
-                                                <div className="col-4 text">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                        fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16">
-                                                        <path
-                                                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
-                                                    </svg>
-                                                    配料
-                                                </div>
-                                                <div className="col-4"></div>
-                                                <div className="col-4"></div>
-                                            </div>
-                                            <div className="row sugarinesscheck">
-                                                {/* 配料選項 */}
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="checkbox" name="ingredients" id="grass" value="1"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;仙草</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="checkbox" name="ingredients" id="balls" value="2"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;珍珠</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;芋圓</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="checkbox" name="ingredients" id="redBeans" value="4"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;紅豆</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="checkbox" name="ingredients" id="pidding" value="5"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;布丁</label>
-                                                </div>
-                                                <div className="col-4 form-check">
-                                                    <input className="form-check-input" type="checkbox" name="ingredients" id="konjacjelly" value="6"></input>
-                                                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;愛玉</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                     <div className="row footer">
                                         <div className="col-6 modaltop">總金額 : 100 元</div>
                                         <div className="col-6 modaltop">
@@ -583,9 +609,27 @@ class order extends Component {
     }
 
 
-    boxmenu = function (e) {
-        console.log(e)
+    // 點選按鈕所顯示的該商品
+    boxmenu = (productId) => {
+        // 根据商品ID从 modelInfo 中获取对应的商品信息
+        const Product = this.state.modelInfo.find(product => product.product_id === productId);
+        // 更新狀態中的 selectedProduct
+        console.log(Product);
+        // this.setState({ selectedProduct }, () => {
+        // 跳出對話盒
+        //     document.getElementById
+        // });
+        let newState = { ...this.state };
+        newState.selectedProduct = Product;
+        console.log(newState.selectedProduct);
+        this.setState(newState);
+        console.log(this.state);
     }
+
+
+    // boxmenu = function (e) {
+    //     console.log(e)
+    // }
 
 
     // toastEl = function() {
@@ -594,14 +638,6 @@ class order extends Component {
     //       return new bootstrap.Toast(toastEl, option)
     //     })
     // }
-
-
-
-
-
-
-
-
 
 
     pointinfoShow = (event) => {
@@ -659,7 +695,16 @@ class order extends Component {
             return (<h4 id='loginBtn' className='my-auto btn headerText align-self-center' onClick={this.toggleMemberNav}>登入/註冊▼</h4>)
         }
     }
+    cartMenuClick = () => {
+        const userData = JSON.parse(localStorage.getItem('userdata'));
+        if (userData) {
+            const userId = userData.user_id;
+            window.location = `/cartlist/${userId}`;
+        } else {
+            window.location = "/login";
+        }
 
+    }
 
 
 
