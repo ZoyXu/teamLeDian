@@ -451,7 +451,7 @@ app.get("/order/modelproduct/:id", function (req, res) {
 });
 
 
-// 訂購頁面 對話盒 
+// 訂購頁面 對話盒 尺寸資料
 app.get("/order/modelproductsize/:id",function(req,res){
   conn.query(
     "SELECT brand.brand_id, brand.brand_name, sizes.size_id, sizes.size_name, sizes.size_0_name,sizes.size_1_name, sizes.size_2_name FROM brand LEFT JOIN sizes ON brand.brand_id = sizes.brand_id WHERE brand.brand_id = ?",
@@ -462,19 +462,92 @@ app.get("/order/modelproductsize/:id",function(req,res){
   )
 })
 
+// 訂購頁面 對話盒 甜度資料
+app.get("/order/modelproductsugars/:id",function(req,res){
+  conn.query(
+    "SELECT brand.brand_id, brand.brand_name,sugars.* FROM sugars INNER JOIN brand ON brand.brand_id = sugars.brand_id WHERE brand.brand_id = ?",
+    [req.params.id],
+    function(err,rows){
+      res.send(JSON.stringify(rows[0]));
+    }
+  )
+})
 
 
-// // 備份訂購頁面 對話盒
-// app.get("/order/modelproduct/:id", function (req, res) {
-//   // res.send('ok');
-//   conn.query(
-//     "SELECT * FROM products WHERE brand_id=?",
-//     [req.params.id],
-//     function (err, rows) {
-//       res.send(JSON.stringify(rows));
-//     }
-//   );
-// });
+// 訂購頁面 對話盒 配料表資料
+app.get("/order/modelproductingredients/:id",function(req,res){
+  conn.query(
+    "SELECT brand.brand_id, brand.brand_name,ingredients.* FROM ingredients INNER JOIN brand ON brand.brand_id = ingredients.brand_id WHERE brand.brand_id = ? ",
+    [req.params.id],
+    function(err,rows){
+      res.send(JSON.stringify(rows[0]));
+    }
+  )
+})
+
+
+// 訂購頁面 新增商品
+//商品編輯 == 甜度溫度 路由
+app.get("/order/create/:id", function (req, res) {
+  console.log(req.params.id);
+  conn.query(
+    `SELECT * FROM products LEFT JOIN sugars ON sugars.brand_id = products.brand_id LEFT JOIN temperatures ON temperatures.brand_id = products.brand_id LEFT JOIN brand ON brand.brand_id = products.brand_id WHERE products.product_id = ?;`,
+    [req.params.id],
+    function (err, rows) {
+      let newdata = [
+        {
+          temperature_choose: [
+            rows[0].temperature_0,
+            rows[0].temperature_1,
+            rows[0].temperature_2,
+            rows[0].temperature_3,
+            rows[0].temperature_4,
+            rows[0].temperature_5,
+            rows[0].temperature_6,
+            rows[0].temperature_7,
+          ],
+        },
+        {
+          sugar_choose: [
+            rows[0].sugar_0,
+            rows[0].sugar_1,
+            rows[0].sugar_2,
+            rows[0].sugar_3,
+            rows[0].sugar_4,
+            rows[0].sugar_5,
+            rows[0].sugar_6,
+            rows[0].sugar_7,
+            rows[0].sugar_8,
+            rows[0].sugar_9,
+          ],
+        },
+      {
+        product: {
+          product_name: rows[0].product_name,
+          product_img: rows[0].product_img,
+          // choose_size_0: 0,
+          // choose_size_1: 3,
+          // choose_size_2: 0,
+          choose_sugar: rows[0].choose_sugar,
+          choose_ingredient: rows[0].choose_ingredient,
+          products_price_0: rows[0].products_price_0,
+          products_price_1: rows[0].products_price_1,
+          products_price_2: rows[0].products_price_2,
+        },
+      },
+    ];
+    console.log(newdata);
+    res.send(JSON.stringify(newdata));
+  }
+);
+});
+
+
+
+
+
+
+
 
 
 
