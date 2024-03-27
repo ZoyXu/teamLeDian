@@ -120,12 +120,14 @@
 
 .storeTitle {
     color: #383838;
-    font-family: "jf-openhuninn-2.0";
+    font-family: "FakePearl-SemiBold";
+    margin-bottom: 13px;
 }
 
 .storeContent {
     color: #383838;
     font-family: "jf-openhuninn-2.0";
+    font-size: 14pt;
 }
 
 .buyText {
@@ -192,8 +194,9 @@
 }
 
 .title1 {
-    font-family: "FakePearl-SemiBold";
+    font-family: "FakePearl-Medium";
     margin-top: 30px;
+    font-weight: 500;
 }
 
 .boxMenu {
@@ -301,8 +304,8 @@
 }
 
 .buttonTitle {
-    font-family: "jf-openhuninn-2.0";
-    font-size: 15pt;
+    font-family: "FakePearl-SemiBold";
+    font-size: 18pt;
     white-space: nowrap;
     text-align: left;
     /* margin-left: 10px; */
@@ -322,7 +325,7 @@
 }
 
 .buttonPrics {
-    font-family: "jf-openhuninn-2.0";
+    font-family: "FakePearl-SemiBold";
     font-size: 14pt;
 }
 
@@ -443,6 +446,20 @@ svg {
 .row.footer {
     margin-top: 30px;
 }
+
+/* 對話盒照片 */
+.menuproductImg {
+    width: 150%;
+    margin-left: -33px;
+    /* padding-right:10px;
+    padding-right: 0px; */
+} 
+
+/* .col-12.menuproductImg {
+    width: 300px;
+    overflow: hidden;
+} */
+
 
 /* 核取方塊間距調整 */
 .row.sizetitle {

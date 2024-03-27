@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import "../css/order.css";
 import "bootstrap/dist/js/bootstrap.js";
-import Axios from 'axios';
+import axios from "axios";
 
 import "../css/index.css";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import { PiMedal } from "react-icons/pi";
 import { PiCoins } from "react-icons/pi";
 import { GiCancel } from "react-icons/gi";
+import { QRCodeCanvas } from "qrcode.react";
 import { Newspaper } from 'react-bootstrap-icons';
 
 
@@ -15,32 +16,55 @@ import { Newspaper } from 'react-bootstrap-icons';
 
 class order extends Component {
 
-    state = {
-        storeInfo: {},
-        brandInfo: {},
-        productList: [],
-        categoriesList: [],
-        productInfo: {},
-        // 對話盒菜單資料
-        modelInfo: {}, // 存儲所有的飲料信息
-        resultModal: null,
-        selectedProduct: {}, // 選擇的飲料的訊息
-        modelproductsize: {}, // 對話盒的商品尺寸
+    constructor(props) {
+        super(props);
+        this.state = {
+            storeInfo: {},
+            brandInfo: {},
+            productList: [],
+            categoriesList: [],
+            productInfo: {},
+            // 對話盒菜單資料
+            modelInfo: {}, // 存儲所有的飲料信息
+            resultModal: null,
+            selectedProduct: {}, // 選擇的飲料的訊息
+            modelproductsize: {}, // 對話盒的商品尺寸
+            modelproductsugars: {}, // 對話盒的甜度資料
+            modelproductingredients: {}, // 該品牌配料表的資料
+
+            productCkeck: {
+                size: "",
+                temperatures: "",
+                sugar: "",
+            },
+        };
     }
 
 
     // 元件掛載撈資料
     componentDidMount = async () => {
-        var resultStore = await Axios.get(`http://localhost:8000/order/branch/${this.props.match.params.id}`);
-        var resultBrand = await Axios.get(`http://localhost:8000/order/brand/${resultStore.data[0].brand_id}`);
-        var resultProduct = await Axios.get(`http://localhost:8000/order/product/${resultStore.data[0].brand_id}`);
-        var resultCategories = await Axios.get(`http://localhost:8000/categories/${resultStore.data[0].brand_id}`);
+        var resultStore = await axios.get(`http://localhost:8000/order/branch/${this.props.match.params.id}`);
+        var resultBrand = await axios.get(`http://localhost:8000/order/brand/${resultStore.data[0].brand_id}`);
+        var resultProduct = await axios.get(`http://localhost:8000/order/product/${resultStore.data[0].brand_id}`);
+        var resultCategories = await axios.get(`http://localhost:8000/categories/${resultStore.data[0].brand_id}`);
         // 對話盒菜單資料  從資料庫獲取飲料和配料的信息
-        var resultModal = await Axios.get(`http://localhost:8000/order/modelproduct/${resultStore.data[0].brand_id}`);
+        var resultModal = await axios.get(`http://localhost:8000/order/modelproduct/${resultStore.data[0].brand_id}`);
         // alert(JSON.stringify(resultModal))
 
         // 對話盒商品尺寸
-        var resultproductsize = await Axios.get(`http://localhost:8000/order/modelproductsize/${resultStore.data[0].brand_id}`);
+        var resultproductsize = await axios.get(`http://localhost:8000/order/modelproductsize/${resultStore.data[0].brand_id}`);
+
+        // 對話盒甜度資料
+        var resultproductsugars = await axios.get(`http://localhost:8000/order/modelproductsugars/${resultStore.data[0].brand_id}`);
+        // alert(JSON.stringify(resultproductsugars))
+
+        // 對話盒配料表資料
+        var resultproductingredients = await axios.get(`http://localhost:8000/order/modelproductingredients/${resultStore.data[0].brand_id}`);
+        // alert(JSON.stringify(resultproductingredients))
+
+        // 對話盒溫度甜度資料
+        var resulttemperaturesugar = await axios.get(`http://localhost:8000/order/create/${resultStore.data[0].brand_id}`);
+        // alert(JSON.stringify(resulttemperaturesugar))
 
 
 
@@ -52,12 +76,23 @@ class order extends Component {
         newState.resultModal = resultModal.data;
         // 對話盒菜單  獲取的飲料訊息
         newState.modelInfo = resultModal.data;
-        // console.log(resultModal.data);
+        //console.log(resultModal.data);
 
         // 對話盒商品尺寸
         newState.modelproductsize = resultproductsize.data;
-        console.log(resultproductsize.data);
+        //console.log(resultproductsize.data);
 
+        // 對話盒甜度資料
+        newState.modelproductsugars = resultproductsugars.data;
+        //console.log(resultproductsugars.data)
+
+        // 對話盒配料表資料
+        newState.modelproductingredients = resultproductingredients.data;
+        //console.log(resultproductingredients.data)
+
+        // 對話盒溫度甜度
+        newState.modelresulttemperaturesugar = resulttemperaturesugar.data;
+        //console.log(resulttemperaturesugar.data)
 
         this.setState(newState);
         //console.log(this.state);
@@ -70,7 +105,85 @@ class order extends Component {
     }
 
 
+    //商品編輯
+    product_create  = (productId) => {
+
+
+        
+
+        // newSate.dbcarts.item_id = id;
+        // newSate.productEdit = result.data;
+        // newSate.productEdit[5].catrs_index = index;
+        // console.log("productEdit:", newSate.productEdit);
+        // this.setState(newSate);
+    };
+
+    // 點選按鈕所顯示的該商品
+    boxmenu = async (productId) => {
+        // alert(1);
+        // 根据商品ID从 modelInfo 中获取对应的商品信息
+        var creatresulttemperaturesugar = await axios.get(`http://localhost:8000/order/create/${productId}`);
+        // console.log(creatresulttemperaturesugar)
+        var newState = {...this.state};
+        newState.selecttemperaturesugar = creatresulttemperaturesugar;
+        // this.setState(newState);
+
+        const Product = this.state.modelInfo.find(product => product.product_id === productId);
+
+        // 更新狀態中的 selectedProduct
+        // console.log(Product);
+        // this.setState({ selectedProduct }, () => {
+        // 跳出對話盒
+        //     document.getElementById
+        // });
+        // let newState = { ...this.state };
+        newState.selectedProduct = Product;
+        // console.log(newState.selectedProduct);
+        this.setState(newState);
+        console.log(this.state);
+    }
+
+    //尺寸
+    size_change = (e) => {
+        // console.log(e.target.dataset.temperatures);
+        let newState = { ...this.state };
+        newState.productEdit[8].cats_item.item_size = e.target.value;
+
+        newState.productEdit[8].cats_item.item_price = Number(
+            e.target.dataset.products_price
+        );
+        this.setState(newState);
+        console.log(newState);
+        // console.log(newState);
+    };
+
+    //甜度
+    sugar_change = (e) => {
+        //console.log(e.target.value);
+        let newState = { ...this.state };
+        newState.productEdit[8].cats_item.item_sugar = e.target.value;
+        this.setState(newState);
+    };
+
+    //溫度
+    temperatures_change = (e) => {
+        //console.log(e.target.value);
+        let newState = { ...this.state };
+        newState.productEdit[8].cats_item.item_temperatures = e.target.value;
+        this.setState(newState);
+    };
+
+    //複製揪團連結
+    shareLink = (e) => {
+        var copyText = document.getElementById("join-box-copy-text");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(copyText.value);
+    };
+
+
     render() {
+        //const { currentStep } = this.state;
         const brandInfo = this.state.brandInfo
         const storeInfo = this.state.storeInfo
         const day = new Date().getDay();
@@ -218,21 +331,34 @@ class order extends Component {
                         <div className="modal-body">
                             <div className="row d-flex flex-column justify-content-between">
                                 <div className="col-12 text-center">
-                                    <input className="text-des p-2 border-0 join-box-input" type="text"
-                                        value="https://order.nidin.shop/gb/men" />
+                                    <input
+                                        id="join-box-copy-text"
+                                        className="text-des p-2 border-0 join-box-input"
+                                        type="text"
+                                        readOnly
+                                        value={`http://localhost:3000/cartPay/${this.props.match.params.id}`}
+                                        onChange={this.change_test}
+                                    />
                                 </div>
                                 <div className="col-12 text-center my-3">
-                                    <button id="copy-link" className="btn-continue text-title p-3">
+                                    <button
+                                        type="button"
+                                        className="btn-continue text-title p-3"
+                                    // onClick="linkShare()"
+                                    >
                                         揪團分享！ 複製連結
                                     </button>
                                 </div>
                                 <div className="col-12 mt-3">
                                     <div className="row">
                                         <div className="col-6 pe-0 d-flex justify-content-end">
-                                            <div id="qrcode-size"></div>
+                                            <QRCodeCanvas value="https://order.nidin.shop/gb/men" />
                                         </div>
                                         <div className="col-6 px-0">
-                                            <img src={("/img/logo/1.png")} alt="logo" />
+                                            <img
+                                                src="/img/icon/logo.png"
+                                                alt="brand-logo"
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -257,7 +383,7 @@ class order extends Component {
                                             <path
                                                 d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1" />
                                         </svg>
-                                        {category.category_name}
+                                        &nbsp;{category.category_name}
                                     </h3>
                                     <div className="link-top"></div>
                                 </div>
@@ -266,7 +392,7 @@ class order extends Component {
                                         if (product.category_id == category.category_id) {
                                             return (
                                                 <div className="col-lg-3 drink col-md-6 drink button btn btn-outline-warning" type="button" data-bs-toggle="modal" key={product.product_id} id={product.product_id}
-                                                    data-bs-target="#exampleModal" onClick={() => { this.boxmenu(product.product_id) }}>
+                                                    data-bs-target="#exampleModal" onClick={() => { this.boxmenu(product.product_id);this.product_create(product.product_id); }}>
                                                     <div className="row">
                                                         <div className="col-8 button ">
                                                             <div className="row">
@@ -334,8 +460,8 @@ class order extends Component {
                                             <div className="col-md-5">
                                                 {/* 左側上方圖片 */}
                                                 <div className="row">
-                                                    <div className="col-12">
-                                                        <img src={(`/img/drinksimg/${this.state.selectedProduct.product_img}.png`)} className="productImg" alt="productImg"></img>
+                                                    <div className="col-12 menuproductImg">
+                                                        <img src={(`/img/class/${this.state.selectedProduct.product_img}.png`)} className="menuproductImg" alt="productImg"></img>
                                                     </div>
                                                     <div className="col-12 Text">
                                                         <div className="alert alert-warning" role="alert">
@@ -364,72 +490,61 @@ class order extends Component {
                                                     this.state.modelproductsize &&
                                                     <div className="row sizecheck">
 
-                                                        {this.state.selectedProduct.products_price_0?                                                     
-                                                        <div className="col-4 form-check">
-                                                            <input className="form-check-input order order" type="radio" name="size" id="medium" value="1"></input>
-                                                            <label className="form-check-label" for="medium">&nbsp;
-                                                            {this.state.modelproductsize.size_0_name}
-                                                            </label>
-                                                        </div>:null}
+                                                        {this.state.selectedProduct.products_price_0 ?
+                                                            <div className="col-4 form-check">
+                                                                <input className="form-check-input order order" type="radio" name="size" id="medium" value="1"></input>
+                                                                <label className="form-check-label" for="medium">&nbsp;
+                                                                    {this.state.modelproductsize.size_0_name}
+                                                                </label>
+                                                            </div> : null}
 
-                                                        {this.state.selectedProduct.products_price_1?                                                     
-                                                        <div className="col-4 form-check">
-                                                            <input className="form-check-input order order" type="radio" name="size" id="medium" value="1"></input>
-                                                            <label className="form-check-label" for="medium">&nbsp;
-                                                            {this.state.modelproductsize.size_1_name}
-                                                            </label>
-                                                        </div>:null}                                                        
-                                                        {this.state.selectedProduct.products_price_2?                                                     
-                                                        <div className="col-4 form-check">
-                                                            <input className="form-check-input order order" type="radio" name="size" id="medium" value="1"></input>
-                                                            <label className="form-check-label" for="medium">&nbsp;
-                                                            {this.state.modelproductsize.size_2_name}
-                                                            </label>
-                                                        </div>:null}
+                                                        {this.state.selectedProduct.products_price_1 ?
+                                                            <div className="col-4 form-check">
+                                                                <input className="form-cheeck-input order order" type="radio" name="size" id="medium" value="1"></input>
+                                                                <label className="form-check-label" for="medium">&nbsp;
+                                                                    {this.state.modelproductsize.size_1_name}
+                                                                </label>
+                                                            </div> : null}
+                                                        {this.state.selectedProduct.products_price_2 ?
+                                                            <div className="col-4 form-check">
+                                                                <input className="form-check-input order order" type="radio" name="size" id="medium" value="1"></input>
+                                                                <label className="form-check-label" for="medium">&nbsp;
+                                                                    {this.state.modelproductsize.size_2_name}
+                                                                </label>
+                                                            </div> : null}
                                                     </div>
 
                                                 }
 
                                                 <div className="row temperaturetitle">
                                                     {/* 溫度 */}
-                                                    <div className="col-4 text">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                            fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16">
-                                                            <path
-                                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                                    <div className="col text">
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            width="16"
+                                                            height="16"
+                                                            fill="currentColor"
+                                                            className="bi bi-star-fill"
+                                                            viewBox="0 0 16 16"
+                                                        >
+                                                            <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
                                                         </svg>
                                                         溫度
                                                     </div>
                                                     <div className="col-4"></div>
                                                     <div className="col-4"></div>
                                                 </div>
-                                                <div className="row temperaturecheck">
-                                                    {/* 溫度選項 */}
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;少冰</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="temperature" id="low" value="2"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;微冰</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="temperature" id="noIce" value="3"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;去冰</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="temperature" id="normal" value="4"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;正常</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="temperature" id="roomTemperature" value="5"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;溫</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="temperature" id="hot" value="6"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;熱</label>
-                                                    </div>
-                                                </div>
+                                                
+
+
+
+
+
+
+
+
+
+
 
 
                                                 <div className="row sugarinesstitle">
@@ -445,19 +560,22 @@ class order extends Component {
                                                     <div className="col-4"></div>
                                                     <div className="col-4"></div>
                                                 </div>
+
+
                                                 <div className="row sugarinesscheck">
                                                     {/* 甜度選項 */}
+
                                                     <div className="col-4 form-check">
                                                         <input className="form-check-input order" type="radio" name="sugariness" id="lessSugar" value="1"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;少糖</label>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;無糖</label>
                                                     </div>
                                                     <div className="col-4 form-check">
                                                         <input className="form-check-input order" type="radio" name="sugariness" id="halfSugar" value="2"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;半糖</label>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;一分糖</label>
                                                     </div>
                                                     <div className="col-4 form-check">
                                                         <input className="form-check-input order" type="radio" name="sugariness" id="standard" value="3"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;標準</label>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;二分糖</label>
                                                     </div>
                                                     <div className="col-4 form-check">
                                                         <input className="form-check-input order" type="radio" name="sugariness" id="lightSugar" value="4"></input>
@@ -465,9 +583,33 @@ class order extends Component {
                                                     </div>
                                                     <div className="col-4 form-check">
                                                         <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;無糖</label>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;半糖</label>
                                                     </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;少糖</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;正常糖</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;微蜜</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;半蜜</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;少蜜</label>
+                                                    </div>
+
                                                 </div>
+
+
+
 
 
                                                 <div className="row sugarinesstitle">
@@ -483,33 +625,109 @@ class order extends Component {
                                                     <div className="col-4"></div>
                                                     <div className="col-4"></div>
                                                 </div>
-                                                <div className="row sugarinesscheck">
-                                                    {/* 配料選項 */}
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="grass" value="1"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;仙草</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="balls" value="2"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;珍珠</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;芋圓</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="redBeans" value="4"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;紅豆</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="pidding" value="5"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;布丁</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="konjacjelly" value="6"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;愛玉</label>
-                                                    </div>
-                                                </div>
+                                                {
+                                                    // 拿取商品資料
+                                                    this.state.modelproductingredients && (
+
+                                                        // 判斷是否可以加配料
+                                                        this.state.selectedProduct.choose_ingredient === 1 ?
+
+                                                            <div className="row sugarinesscheck">
+                                                                {/* 配料選項 */}
+                                                                {/* 判斷是否有這個配料 */}
+                                                                {this.state.modelproductingredients.ingredient_0 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="grass" value="1"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_0} ${this.state.modelproductingredients.ingredient_price_0}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* 判斷是否有這個配料 */}
+                                                                {this.state.modelproductingredients.ingredient_1 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_1} ${this.state.modelproductingredients.ingredient_price_1}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* 判斷是否有這個配料 */}
+                                                                {this.state.modelproductingredients.ingredient_2 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_2} ${this.state.modelproductingredients.ingredient_price_2}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {this.state.modelproductingredients.ingredient_3 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_3} ${this.state.modelproductingredients.ingredient_price_3}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {this.state.modelproductingredients.ingredient_4 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_4} ${this.state.modelproductingredients.ingredient_price_4}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {this.state.modelproductingredients.ingredient_5 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_5} ${this.state.modelproductingredients.ingredient_price_5}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {this.state.modelproductingredients.ingredient_6 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_6} ${this.state.modelproductingredients.ingredient_price_6}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {this.state.modelproductingredients.ingredient_7 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_7} ${this.state.modelproductingredients.ingredient_price_7}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {this.state.modelproductingredients.ingredient_8 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_8} ${this.state.modelproductingredients.ingredient_price_8}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {this.state.modelproductingredients.ingredient_9 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_9} ${this.state.modelproductingredients.ingredient_price_9}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {this.state.modelproductingredients.ingredient_10 && (
+                                                                    <div className="col-6 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_10} ${this.state.modelproductingredients.ingredient_price_10}</label>
+                                                                    </div>
+                                                                )}
+
+                                                                {this.state.modelproductingredients.ingredient_11 && (
+                                                                    <div className="col-4 form-check">
+                                                                        <input className="form-check-input order" type="checkbox" name="ingredients" id="taroBalls" value="3"></input>
+                                                                        <label className="form-check-label" htmlFor="flexRadioDefault1">&nbsp;{this.state.modelproductingredients.ingredient_11} ${this.state.modelproductingredients.ingredient_price_11}</label>
+                                                                    </div>
+                                                                )}
+
+                                                            </div>
+                                                            : null
+                                                    )
+                                                }
+
+
+
                                             </div>
                                         </div>
                                     }
@@ -609,22 +827,7 @@ class order extends Component {
     }
 
 
-    // 點選按鈕所顯示的該商品
-    boxmenu = (productId) => {
-        // 根据商品ID从 modelInfo 中获取对应的商品信息
-        const Product = this.state.modelInfo.find(product => product.product_id === productId);
-        // 更新狀態中的 selectedProduct
-        console.log(Product);
-        // this.setState({ selectedProduct }, () => {
-        // 跳出對話盒
-        //     document.getElementById
-        // });
-        let newState = { ...this.state };
-        newState.selectedProduct = Product;
-        console.log(newState.selectedProduct);
-        this.setState(newState);
-        console.log(this.state);
-    }
+
 
 
     // boxmenu = function (e) {
@@ -667,10 +870,10 @@ class order extends Component {
         // 清除localStorage
         localStorage.removeItem("userdata");
         const userdata = localStorage.getItem("userdata");
-        console.log("現在的:", userdata);
+        //console.log("現在的:", userdata);
         try {
             // 告訴後台使用者要登出
-            await Axios.post('http://localhost:8000/logout');
+            await axios.post('http://localhost:8000/logout');
 
 
             //   window.location = '/logout'; // 看看登出要重新定向到哪個頁面
