@@ -485,6 +485,17 @@ app.get("/order/modelproductingredients/:id",function(req,res){
   )
 })
 
+// 訂購頁面 拿取甜度資料
+app.get("/order/modelsugar/:id",function(req,res){
+  conn.query(
+    "SELECT sugars.sugar_0,sugars.sugar_1,sugars.sugar_2,sugars.sugar_2,sugars.sugar_3,sugars.sugar_4,sugars.sugar_5,sugars.sugar_6,sugars.sugar_7,sugars.sugar_8,sugars.sugar_9 FROM sugars WHERE sugar_id = ?",
+    [req.params.id],
+    function(err,rows){
+      res.send(JSON.stringify(rows[0]));
+    }
+  )
+})
+
 
 //訂購頁面 尺寸甜度溫度資料
 app.get("/order/create/:id", function (req, res) {
@@ -516,18 +527,17 @@ app.get("/order/create/:id", function (req, res) {
 
         {
           temperature_choose: [
-            rows[0].temperature_0,
-            rows[0].temperature_1,
-            rows[0].temperature_2,
-            rows[0].temperature_3,
-            rows[0].temperature_4,
-            rows[0].temperature_5,
-            rows[0].temperature_6,
-            rows[0].temperature_7,
+            rows[0].temperature_0,rows[0].temperature_categorise_0,
+            rows[0].temperature_1,rows[0].temperature_categorise_1,
+            rows[0].temperature_2,rows[0].temperature_categorise_2,
+            rows[0].temperature_3,rows[0].temperature_categorise_3,
+            rows[0].temperature_4,rows[0].temperature_categorise_4,
+            rows[0].temperature_5,rows[0].temperature_categorise_5,
+            rows[0].temperature_6,rows[0].temperature_categorise_6,
+            rows[0].temperature_7,rows[0].temperature_categorise_7,
           ],
         },
         
-
         {
           sugar_choose: [
             rows[0].sugar_0,
@@ -542,9 +552,11 @@ app.get("/order/create/:id", function (req, res) {
             rows[0].sugar_9,
           ],
         },
-
+        
       {
         product: {
+          // product_name: rows[0].product_name,
+          // product_img: rows[0].product_img,
           // choose_size_0: 0,
           // choose_size_1: 3,
           // choose_size_2: 0,

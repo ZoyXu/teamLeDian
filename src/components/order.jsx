@@ -32,7 +32,8 @@ class order extends Component {
             modelproductsugars: {}, // 對話盒的甜度資料
             modelproductingredients: {}, // 該品牌配料表的資料
             modelresulttemperaturesugar: {}, //對話盒的尺寸溫度甜度資料
-
+            selectsize: 0, // 選中的size
+            selectedProduct: { choose_sugar: 0 },
             productCkeck: {
                 size: "",
                 temperatures: "",
@@ -67,6 +68,9 @@ class order extends Component {
         var resulttemperaturesugar = await axios.get(`http://localhost:8000/order/create/${resultStore.data[0].brand_id}`);
         // alert(JSON.stringify(resulttemperaturesugar))
 
+        var resulesugars = await axios.get(`http://localhost:8000/order/modelsugar/${resultStore.data[0].brand_id}`);
+
+
 
 
 
@@ -76,6 +80,9 @@ class order extends Component {
         newState.productList = resultProduct.data;
         newState.categoriesList = resultCategories.data;
         newState.resultModal = resultModal.data;
+        newState.sugars = resulesugars.data;
+        console.log(resulesugars.data)
+
         // 對話盒菜單  獲取的飲料訊息
         newState.modelInfo = resultModal.data;
         //console.log(resultModal.data);
@@ -102,8 +109,241 @@ class order extends Component {
 
     }
 
-    getProductInfo = () => {
+    // getProductInfo = () => {
 
+    // }
+
+    // 顯示溫度 // 判斷所選的溫度會跳出來的尺寸
+    showTemp = (temp) => {
+        // 選擇 m 冷的
+        if (temp == 1) {
+            if (this.state.comparisonInfo.choose_size_0 == 1) {
+                return this.state.coldTemp.map((item) => {
+                    return (
+                        <div className="col-4 form-check">
+                            <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                            <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                        </div>
+                    );
+                });
+            } else if (this.state.comparisonInfo.choose_size_0 == 2) {
+                return this.state.hotTemp.map((item) => {
+                    return (
+                        <div className="col-4 form-check">
+                            <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                            <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                        </div>
+                    );
+                });
+            } else if (this.state.comparisonInfo.choose_size_0 == 3) {
+                return (<>
+
+                    {this.state.coldTemp.map((item) => {
+                        return (
+                            <div className="col-4 form-check">
+                                <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                                <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                            </div>
+                        );
+                    })}
+                    {this.state.hotTemp.map((item) => {
+                        return (
+                            <div className="col-4 form-check">
+                                <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                                <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                            </div>
+                        );
+                    })}
+                </>
+                )
+            } else if (this.state.comparisonInfo.choose_size_0 == 4) {
+                return <div className="col-4 form-check">
+                    <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1" checked></input>
+                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;冷固定</label>
+                </div>
+            } else if (this.state.comparisonInfo.choose_size_0 == 5) {
+                return <div className="col-4 form-check">
+                    <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1" checked></input>
+                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;熱固定</label>
+                </div>
+            }
+
+            // 選擇L
+        } else if (temp == 2) {
+            if (this.state.comparisonInfo.choose_size_1 == 1) {
+                return this.state.coldTemp.map((item) => {
+                    return (
+                        <div className="col-4 form-check">
+                            <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                            <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                        </div>
+                    );
+                });
+            } else if (this.state.comparisonInfo.choose_size_1 == 2) {
+                return this.state.hotTemp.map((item) => {
+                    return (
+                        <div className="col-4 form-check">
+                            <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                            <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                        </div>
+                    );
+                });
+            } else if (this.state.comparisonInfo.choose_size_1 == 3) {
+                return (<>
+
+                    {this.state.coldTemp.map((item) => {
+                        return (
+                            <div className="col-4 form-check">
+                                <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                                <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                            </div>
+                        );
+                    })}
+                    {this.state.hotTemp.map((item) => {
+                        return (
+                            <div className="col-4 form-check">
+                                <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                                <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                            </div>
+                        );
+                    })}
+                </>
+                )
+            } else if (this.state.comparisonInfo.choose_size_1 == 4) {
+                return <div className="col-4 form-check">
+                    <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1" checked></input>
+                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;冷固定</label>
+                </div>
+            } else if (this.state.comparisonInfo.choose_size_1 == 5) {
+                return <div className="col-4 form-check">
+                    <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1" checked></input>
+                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;熱固定</label>
+                </div>
+            }
+
+
+            // 選擇XL
+        } else if (temp == 3) {
+            if (this.state.comparisonInfo.choose_size_2 == 1) {
+                return this.state.coldTemp.map((item) => {
+                    return (
+                        <div className="col-4 form-check">
+                            <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                            <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                        </div>
+                    );
+                });
+            } else if (this.state.comparisonInfo.choose_size_2 == 2) {
+                return this.state.hotTemp.map((item) => {
+                    return (
+                        <div className="col-4 form-check">
+                            <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                            <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                        </div>
+                    );
+                });
+            } else if (this.state.comparisonInfo.choose_size_2 == 3) {
+                return (<>
+
+                    {this.state.coldTemp.map((item) => {
+                        return (
+                            <div className="col-4 form-check">
+                                <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                                <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                            </div>
+                        );
+                    })}
+                    {this.state.hotTemp.map((item) => {
+                        return (
+                            <div className="col-4 form-check">
+                                <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                                <label className="form-check-label" for="flexRadioDefault1">&nbsp;{item}</label>
+                            </div>
+                        );
+                    })}
+                </>
+                )
+            } else if (this.state.comparisonInfo.choose_size_2 == 4) {
+                return <div className="col-4 form-check">
+                    <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1" checked></input>
+                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;冷固定</label>
+                </div>
+            } else if (this.state.comparisonInfo.choose_size_2 == 5) {
+                return <div className="col-4 form-check">
+                    <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1" checked></input>
+                    <label className="form-check-label" for="flexRadioDefault1">&nbsp;熱固定</label>
+                </div>
+            }
+            // 選擇XL
+        }
+    }
+
+    // 選擇甜度
+    sugars = () => {
+        var sugarName = [this.state.sugars.sugar_0,this.state.sugars.sugar_1,this.state.sugars.sugar_3,this.state.sugars.sugar_4,this.state.sugars.sugar_5,this.state.sugars.sugar_6,this.state.sugars.sugar_7,this.state.sugars.sugar_8,this.state.sugars.sugar_9]
+        console.log(sugarName)
+        if (this.state.selectedProduct.choose_sugar == 1) {
+            return [sugarName[0],sugarName[1],sugarName[2],sugarName[3],sugarName[4],sugarName[5]].map((name, i) => {
+                if(name){
+                return (
+                    <div className="col-4 form-check">
+                        <input className="form-check-input order" type="radio" name="sugariness" value="1" id={`sugar${i}`} />
+                        <label className="form-check-label" htmlFor={`sugar${i}`}>&nbsp;{name}</label>
+                    </div>
+                )}
+            })
+        } else if (this.state.selectedProduct.choose_sugar == 2) {
+            return (
+                <div className="col-4 form-check">
+                    <input className="form-check-input order" type="radio" name="sugariness" value="1" id={`sugar0`} />
+                    <label className="form-check-label" htmlFor={`sugar0`}>&nbsp;甜度固定</label>
+                </div>
+            )
+        }else if (this.state.selectedProduct.choose_sugar == 3) {
+            return (
+                <div className="col-4 form-check">
+                    <input className="form-check-input order" type="radio" name="sugariness" value="1" id={`sugar0`} />
+                    <label className="form-check-label" htmlFor={`sugar0`}>&nbsp;僅限無糖</label>
+                </div>
+            )
+        }else if(this.state.selectedProduct.choose_sugar == 4) {
+            return [sugarName[0],sugarName[1]].map((name, i) => {
+                return (
+                    <div className="col-4 form-check">
+                        <input className="form-check-input order" type="radio" name="sugariness" value="1" id={`sugar${i}`} />
+                        <label className="form-check-label" htmlFor={`sugar${i}`}>&nbsp;{name}</label>
+                    </div>
+                )
+            })
+        }else if(this.state.selectedProduct.choose_sugar == 5) {
+            return [sugarName[0],sugarName[1],sugarName[2],sugarName[3],].map((name, i) => {
+                if(name){
+                return (
+                    <div className="col-4 form-check">
+                        <input className="form-check-input order" type="radio" name="sugariness" value="1" id={`sugar${i}`} />
+                        <label className="form-check-label" htmlFor={`sugar${i}`}>&nbsp;{name}</label>
+                    </div>
+                )}
+            })
+        } else if(this.state.selectedProduct.choose_sugar == 6) {
+            return [sugarName[3],sugarName[5]].map((name, i) => {
+                return (
+                    <div className="col-4 form-check">
+                        <input className="form-check-input order" type="radio" name="sugariness" value="1" id={`sugar${i}`} />
+                        <label className="form-check-label" htmlFor={`sugar${i}`}>&nbsp;{name}</label>
+                    </div>
+                )
+            })
+        }else if(this.state.selectedProduct.choose_sugar == 7) {
+            return [sugarName[6],sugarName[7],sugarName[8]].map((name, i) => {
+                return (
+                    <div className="col-4 form-check">
+                        <input className="form-check-input order" type="radio" name="sugariness" value="1" id={`sugar${i}`} />
+                        <label className="form-check-label" htmlFor={`sugar${i}`}>&nbsp;{name}</label>
+                    </div>
+                )
+            })
+        }
     }
 
 
@@ -120,14 +360,28 @@ class order extends Component {
 
         // 對話盒的產品名稱及圖片及品牌備註
         const Product = this.state.modelInfo.find(product => product.product_id === productId);
+        var hotTemp = [];
+        var coldTemp = [];
+        const tempInfo = this.state.modelresulttemperaturesugar[1].temperature_choose;
+        for (let i = 0; i < tempInfo.length; i++) {
+            if (tempInfo[i] == 1) {
+                coldTemp.push(tempInfo[i - 1])
+            } else if (tempInfo[i] == 2) {
+                hotTemp.push(tempInfo[i - 1])
+            }
+        }
+        newState.hotTemp = hotTemp;
+        newState.coldTemp = coldTemp;
 
         newState.selectedProduct = Product;
         // console.log(newState.selectedProduct);
         // 做比對的資料
-        newState.comparisonInfo = {'Product.choose_size_0':Product.choose_size_0,'Product.choose_size_1':Product.choose_size_1,'Product.choose_size_2':Product.choose_size_2,
-        'Product.choose_sugar':Product.choose_sugar,'Product.temperature_id':Product.temperature_id};
+        newState.comparisonInfo = {
+            'choose_size_0': Product.choose_size_0, 'choose_size_1': Product.choose_size_1, 'choose_size_2': Product.choose_size_2,
+            'choose_sugar': Product.choose_sugar, 'temperature_id': Product.temperature_id
+        };
 
-        
+
 
         // var resultselectproduct = await axios.get(`http://localhost:8000/order/create/${this.state.selectedProduct.product_id}`);
         // // alert(JSON.stringify(resultselectproduct))
@@ -151,12 +405,12 @@ class order extends Component {
     // };
 
     //甜度
-    sugar_change = (e) => {
-        //console.log(e.target.value);
-        let newState = { ...this.state };
-        newState.productEdit[8].cats_item.item_sugar = e.target.value;
-        this.setState(newState);
-    };
+    // sugar_change = (e) => {
+    //     //console.log(e.target.value);
+    //     let newState = { ...this.state };
+    //     newState.productEdit[8].cats_item.item_sugar = e.target.value;
+    //     this.setState(newState);
+    // };
 
     // //溫度
     // temperatures_change = (e) => {
@@ -173,6 +427,20 @@ class order extends Component {
         copyText.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(copyText.value);
     };
+
+    // 消除所選的紀錄
+    handleClick = (event) => {
+        if (event.target.id === 'exampleModal') {
+            var formCheckInput = document.getElementsByClassName('form-check-input');
+            for (var i = 0; i < formCheckInput.length; i++) {
+                if (formCheckInput[i].checked) {
+                    formCheckInput[i].checked = false;
+                }
+            }
+            event.preventDefault(); // 阻止默认事件
+            this.setState({ selectsize: 0 })
+        }
+    }
 
 
     render() {
@@ -432,7 +700,7 @@ class order extends Component {
 
 
             {/* 對話盒Modal */}
-            <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal fade" id="exampleModal" onClick={this.handleClick} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-lg ">
                     <div className="modal-content join">
                         <div className="modal-body">
@@ -484,8 +752,8 @@ class order extends Component {
                                                     <div className="row sizecheck">
 
                                                         {this.state.selectedProduct.products_price_0 ?
-                                                            <div className="col-4 form-check">
-                                                                <input className="form-check-input order order" type="radio" name="size" id="medium" value="1"></input>
+                                                            <div className="col-4 form-check" >
+                                                                <input className="form-check-input order " type="radio" name="size" id="medium" value="1" onChange={() => { this.setState({ selectsize: 1 }) }} ></input>
                                                                 <label className="form-check-label" for="medium">&nbsp;
                                                                     {this.state.modelproductsize.size_0_name}
                                                                 </label>
@@ -493,15 +761,15 @@ class order extends Component {
 
                                                         {this.state.selectedProduct.products_price_1 ?
                                                             <div className="col-4 form-check">
-                                                                <input className="form-cheeck-input order order" type="radio" name="size" id="medium" value="1"></input>
-                                                                <label className="form-check-label" for="medium">&nbsp;
+                                                                <input className="form-check-input order" type="radio" name="size" id="large" value="1" onChange={() => { this.setState({ selectsize: 2 }) }}></input>
+                                                                <label className="form-check-label" for="large">&nbsp;
                                                                     {this.state.modelproductsize.size_1_name}
                                                                 </label>
                                                             </div> : null}
                                                         {this.state.selectedProduct.products_price_2 ?
                                                             <div className="col-4 form-check">
-                                                                <input className="form-check-input order order" type="radio" name="size" id="medium" value="1"></input>
-                                                                <label className="form-check-label" for="medium">&nbsp;
+                                                                <input className="form-check-input order" type="radio" name="size" id="extraLarge" value="1" onChange={() => { this.setState({ selectsize: 3 }) }} ></input>
+                                                                <label className="form-check-label" for="extraLarge">&nbsp;
                                                                     {this.state.modelproductsize.size_2_name}
                                                                 </label>
                                                             </div> : null}
@@ -527,9 +795,12 @@ class order extends Component {
                                                     <div className="col-4"></div>
                                                     <div className="col-4"></div>
                                                 </div>
+
+
                                                 <div className="row temperaturecheck">
                                                     {/* 溫度選項 */}
-                                                    <div className="col-4 form-check">
+                                                    {this.showTemp(this.state.selectsize)}
+                                                    {/* <div className="col-4 form-check">
                                                         <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
                                                         <label className="form-check-label" for="flexRadioDefault1">&nbsp;少冰</label>
                                                     </div>
@@ -552,7 +823,7 @@ class order extends Component {
                                                     <div className="col-4 form-check">
                                                         <input className="form-check-input order" type="radio" name="temperature" id="hot" value="6"></input>
                                                         <label className="form-check-label" for="flexRadioDefault1">&nbsp;熱</label>
-                                                    </div>
+                                                    </div> */}
                                                 </div>
 
 
@@ -572,34 +843,42 @@ class order extends Component {
 
                                                 <div className="row sugarinesscheck">
                                                     {/* 甜度選項 */}
-
+                                                    {/* {this.sugars()}; */}
                                                     <div>
-                                                        {/* 根据 choose_sugar 的值進行渲染 */}
-                                                        {this.state.modelresulttemperaturesugar[3] && this.state.modelresulttemperaturesugar[3].product.choose_sugar === 1 && (
-                                                            <div>
-                                                                <div className="col-4 form-check">
-                                                                    <input className="form-check-input order" type="radio" name="sugariness" id="lessSugar" value="1" />
+
+                                                        <div>
+                                                            {this.sugars()}
+                                                            {/* <div className="col-4 form-check">
+                                                                    <input className="form-check-input order" type="radio" name="sugariness" value="1" />
                                                                     <label className="form-check-label" htmlFor="lessSugar">&nbsp;無糖</label>
                                                                 </div>
                                                                 <div className="col-4 form-check">
-                                                                    <input className="form-check-input order" type="radio" name="sugariness" id="halfSugar" value="2" />
+                                                                    <input className="form-check-input order" type="radio" name="sugariness" value="2" />
                                                                     <label className="form-check-label" htmlFor="halfSugar">&nbsp;一分糖</label>
                                                                 </div>
                                                                 <div className="col-4 form-check">
-                                                                    <input className="form-check-input order" type="radio" name="sugariness" id="standard" value="3" />
+                                                                    <input className="form-check-input order" type="radio" name="sugariness" value="3" />
                                                                     <label className="form-check-label" htmlFor="standard">&nbsp;二分糖</label>
                                                                 </div>
-                                                                {/* 其他甜度选项 */}
-                                                            </div>
-                                                        )}
-                                                        {/* 如果 choose_sugar 的值不為 1，则禁用甜度选项 */}
-                                                        {this.state.modelresulttemperaturesugar && this.state.modelresulttemperaturesugar[3] && this.state.modelresulttemperaturesugar[3].product.choose_sugar !== 1 && (
-                                                            <div>
-                                                                <p>無法選擇甜度</p>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                                <div className="col-4 form-check">
+                                                                    <input className="form-check-input order" type="radio" name="sugariness" value="3" />
+                                                                    <label className="form-check-label" htmlFor="standard">&nbsp;微糖</label>
+                                                                </div>
+                                                                <div className="col-4 form-check">
+                                                                    <input className="form-check-input order" type="radio" name="sugariness" value="3" />
+                                                                    <label className="form-check-label" htmlFor="standard">&nbsp;半糖</label>
+                                                                </div>
+                                                                <div className="col-4 form-check">
+                                                                    <input className="form-check-input order" type="radio" name="sugariness" id="standard" value="3" />
+                                                                    <label className="form-check-label" htmlFor="standard">&nbsp;少糖</label>
+                                                                </div>
+                                                                <div className="col-4 form-check">
+                                                                    <input className="form-check-input order" type="radio" name="sugariness" id="standard" value="3" />
+                                                                    <label className="form-check-label" htmlFor="standard">&nbsp;正常糖</label>
+                                                                </div> */}
+                                                        </div>
 
+                                                    </div>
 
 
                                                 </div>
