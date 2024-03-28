@@ -486,15 +486,34 @@ app.get("/order/modelproductingredients/:id",function(req,res){
 })
 
 
-// 訂購頁面 新增商品
-//商品編輯 == 甜度溫度 路由
+//訂購頁面 尺寸甜度溫度資料
 app.get("/order/create/:id", function (req, res) {
   console.log(req.params.id);
   conn.query(
-    `SELECT * FROM products LEFT JOIN sugars ON sugars.brand_id = products.brand_id LEFT JOIN temperatures ON temperatures.brand_id = products.brand_id LEFT JOIN brand ON brand.brand_id = products.brand_id WHERE products.product_id = ?;`,
+    `SELECT * FROM products LEFT JOIN sizes ON sizes.brand_id = products.brand_id LEFT JOIN sugars ON sugars.brand_id = products.brand_id LEFT JOIN temperatures ON temperatures.brand_id = products.brand_id LEFT JOIN brand ON brand.brand_id = products.brand_id WHERE products.product_id = ?;`,
     [req.params.id],
     function (err, rows) {
       let newdata = [
+        {
+          size_choose: [
+            {
+              size: rows[0].choose_size_0 ? rows[0].size_0_name : "",
+              temperatures: rows[0].choose_size_0,
+              products_price: rows[0].products_price_0,
+            },
+            {
+              size: rows[0].choose_size_1 ? rows[0].size_1_name : "",
+              temperatures: rows[0].choose_size_1,
+              products_price: rows[0].products_price_1,
+            },
+            {
+              size: rows[0].choose_size_2 ? rows[0].size_1_name : "",
+              temperatures: rows[0].choose_size_2,
+              products_price: rows[0].products_price_2,
+            },
+          ],
+        },
+
         {
           temperature_choose: [
             rows[0].temperature_0,
@@ -507,6 +526,8 @@ app.get("/order/create/:id", function (req, res) {
             rows[0].temperature_7,
           ],
         },
+        
+
         {
           sugar_choose: [
             rows[0].sugar_0,
@@ -521,10 +542,9 @@ app.get("/order/create/:id", function (req, res) {
             rows[0].sugar_9,
           ],
         },
+
       {
         product: {
-          product_name: rows[0].product_name,
-          product_img: rows[0].product_img,
           // choose_size_0: 0,
           // choose_size_1: 3,
           // choose_size_2: 0,

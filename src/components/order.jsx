@@ -31,6 +31,7 @@ class order extends Component {
             modelproductsize: {}, // 對話盒的商品尺寸
             modelproductsugars: {}, // 對話盒的甜度資料
             modelproductingredients: {}, // 該品牌配料表的資料
+            modelresulttemperaturesugar: {}, //對話盒的尺寸溫度甜度資料
 
             productCkeck: {
                 size: "",
@@ -62,9 +63,10 @@ class order extends Component {
         var resultproductingredients = await axios.get(`http://localhost:8000/order/modelproductingredients/${resultStore.data[0].brand_id}`);
         // alert(JSON.stringify(resultproductingredients))
 
-        // 對話盒溫度甜度資料
+        // 對話盒尺寸溫度甜度資料
         var resulttemperaturesugar = await axios.get(`http://localhost:8000/order/create/${resultStore.data[0].brand_id}`);
         // alert(JSON.stringify(resulttemperaturesugar))
+
 
 
 
@@ -90,7 +92,7 @@ class order extends Component {
         newState.modelproductingredients = resultproductingredients.data;
         //console.log(resultproductingredients.data)
 
-        // 對話盒溫度甜度
+        // 對話盒尺寸溫度甜度
         newState.modelresulttemperaturesugar = resulttemperaturesugar.data;
         //console.log(resulttemperaturesugar.data)
 
@@ -105,57 +107,48 @@ class order extends Component {
     }
 
 
-    //商品編輯
-    product_create  = (productId) => {
 
-
-        
-
-        // newSate.dbcarts.item_id = id;
-        // newSate.productEdit = result.data;
-        // newSate.productEdit[5].catrs_index = index;
-        // console.log("productEdit:", newSate.productEdit);
-        // this.setState(newSate);
-    };
-
-    // 點選按鈕所顯示的該商品
+    // 點選按鈕所顯示的該商品 //點選商品會帶入的尺寸 溫度 甜度 訊息
     boxmenu = async (productId) => {
         // alert(1);
-        // 根据商品ID从 modelInfo 中获取对应的商品信息
+        // 根据商品ID從 modelInfo 中获取对应的商品信息
         var creatresulttemperaturesugar = await axios.get(`http://localhost:8000/order/create/${productId}`);
         // console.log(creatresulttemperaturesugar)
-        var newState = {...this.state};
+        var newState = { ...this.state };
         newState.selecttemperaturesugar = creatresulttemperaturesugar;
         // this.setState(newState);
 
+        // 對話盒的產品名稱及圖片及品牌備註
         const Product = this.state.modelInfo.find(product => product.product_id === productId);
 
-        // 更新狀態中的 selectedProduct
-        // console.log(Product);
-        // this.setState({ selectedProduct }, () => {
-        // 跳出對話盒
-        //     document.getElementById
-        // });
-        // let newState = { ...this.state };
         newState.selectedProduct = Product;
         // console.log(newState.selectedProduct);
+        // 做比對的資料
+        newState.comparisonInfo = {'Product.choose_size_0':Product.choose_size_0,'Product.choose_size_1':Product.choose_size_1,'Product.choose_size_2':Product.choose_size_2,
+        'Product.choose_sugar':Product.choose_sugar,'Product.temperature_id':Product.temperature_id};
+
+        
+
+        // var resultselectproduct = await axios.get(`http://localhost:8000/order/create/${this.state.selectedProduct.product_id}`);
+        // // alert(JSON.stringify(resultselectproduct))
+
         this.setState(newState);
         console.log(this.state);
     }
 
-    //尺寸
-    size_change = (e) => {
-        // console.log(e.target.dataset.temperatures);
-        let newState = { ...this.state };
-        newState.productEdit[8].cats_item.item_size = e.target.value;
+    // //尺寸
+    // size_change = (e) => {
+    //     // console.log(e.target.dataset.temperatures);
+    //     let newState = { ...this.state };
+    //     newState.productEdit[8].cats_item.item_size = e.target.value;
 
-        newState.productEdit[8].cats_item.item_price = Number(
-            e.target.dataset.products_price
-        );
-        this.setState(newState);
-        console.log(newState);
-        // console.log(newState);
-    };
+    //     newState.productEdit[8].cats_item.item_price = Number(
+    //         e.target.dataset.products_price
+    //     );
+    //     this.setState(newState);
+    //     console.log(newState);
+    //     // console.log(newState);
+    // };
 
     //甜度
     sugar_change = (e) => {
@@ -165,13 +158,13 @@ class order extends Component {
         this.setState(newState);
     };
 
-    //溫度
-    temperatures_change = (e) => {
-        //console.log(e.target.value);
-        let newState = { ...this.state };
-        newState.productEdit[8].cats_item.item_temperatures = e.target.value;
-        this.setState(newState);
-    };
+    // //溫度
+    // temperatures_change = (e) => {
+    //     //console.log(e.target.value);
+    //     let newState = { ...this.state };
+    //     newState.productEdit[8].cats_item.item_temperatures = e.target.value;
+    //     this.setState(newState);
+    // };
 
     //複製揪團連結
     shareLink = (e) => {
@@ -392,7 +385,7 @@ class order extends Component {
                                         if (product.category_id == category.category_id) {
                                             return (
                                                 <div className="col-lg-3 drink col-md-6 drink button btn btn-outline-warning" type="button" data-bs-toggle="modal" key={product.product_id} id={product.product_id}
-                                                    data-bs-target="#exampleModal" onClick={() => { this.boxmenu(product.product_id);this.product_create(product.product_id); }}>
+                                                    data-bs-target="#exampleModal" onClick={() => { this.boxmenu(product.product_id) }}>
                                                     <div className="row">
                                                         <div className="col-8 button ">
                                                             <div className="row">
@@ -534,17 +527,33 @@ class order extends Component {
                                                     <div className="col-4"></div>
                                                     <div className="col-4"></div>
                                                 </div>
-                                                
-
-
-
-
-
-
-
-
-
-
+                                                <div className="row temperaturecheck">
+                                                    {/* 溫度選項 */}
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="lessIce" value="1"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;少冰</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="low" value="2"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;微冰</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="noIce" value="3"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;去冰</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="normal" value="4"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;正常</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="roomTemperature" value="5"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;溫</label>
+                                                    </div>
+                                                    <div className="col-4 form-check">
+                                                        <input className="form-check-input order" type="radio" name="temperature" id="hot" value="6"></input>
+                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;熱</label>
+                                                    </div>
+                                                </div>
 
 
                                                 <div className="row sugarinesstitle">
@@ -561,50 +570,37 @@ class order extends Component {
                                                     <div className="col-4"></div>
                                                 </div>
 
-
                                                 <div className="row sugarinesscheck">
                                                     {/* 甜度選項 */}
 
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="sugariness" id="lessSugar" value="1"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;無糖</label>
+                                                    <div>
+                                                        {/* 根据 choose_sugar 的值進行渲染 */}
+                                                        {this.state.modelresulttemperaturesugar[3] && this.state.modelresulttemperaturesugar[3].product.choose_sugar === 1 && (
+                                                            <div>
+                                                                <div className="col-4 form-check">
+                                                                    <input className="form-check-input order" type="radio" name="sugariness" id="lessSugar" value="1" />
+                                                                    <label className="form-check-label" htmlFor="lessSugar">&nbsp;無糖</label>
+                                                                </div>
+                                                                <div className="col-4 form-check">
+                                                                    <input className="form-check-input order" type="radio" name="sugariness" id="halfSugar" value="2" />
+                                                                    <label className="form-check-label" htmlFor="halfSugar">&nbsp;一分糖</label>
+                                                                </div>
+                                                                <div className="col-4 form-check">
+                                                                    <input className="form-check-input order" type="radio" name="sugariness" id="standard" value="3" />
+                                                                    <label className="form-check-label" htmlFor="standard">&nbsp;二分糖</label>
+                                                                </div>
+                                                                {/* 其他甜度选项 */}
+                                                            </div>
+                                                        )}
+                                                        {/* 如果 choose_sugar 的值不為 1，则禁用甜度选项 */}
+                                                        {this.state.modelresulttemperaturesugar && this.state.modelresulttemperaturesugar[3] && this.state.modelresulttemperaturesugar[3].product.choose_sugar !== 1 && (
+                                                            <div>
+                                                                <p>無法選擇甜度</p>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="sugariness" id="halfSugar" value="2"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;一分糖</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="sugariness" id="standard" value="3"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;二分糖</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="sugariness" id="lightSugar" value="4"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;微糖</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;半糖</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;少糖</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;正常糖</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;微蜜</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;半蜜</label>
-                                                    </div>
-                                                    <div className="col-4 form-check">
-                                                        <input className="form-check-input order" type="radio" name="sugariness" id="noSugar" value="5"></input>
-                                                        <label className="form-check-label" for="flexRadioDefault1">&nbsp;少蜜</label>
-                                                    </div>
+
+
 
                                                 </div>
 
