@@ -497,6 +497,35 @@ app.get("/order/modelsugar/:id",function(req,res){
 })
 
 
+
+
+
+
+
+
+
+
+// 訂購頁面拿取商品尺寸資料 // 依照產品id拿取產品的尺寸的價格
+app.get("/order/moderprice/:id",function(req,res){
+  conn.query(
+    "SELECT products.products_price_0,products.products_price_1,products.products_price_2 FROM products WHERE product_id = ?",
+    [req.params.id],
+    function(err,rows){
+      res.send(JSON.stringify(rows[0]));
+    }
+  )
+})
+
+
+
+
+
+
+
+
+
+
+
 //訂購頁面 尺寸甜度溫度資料
 app.get("/order/create/:id", function (req, res) {
   console.log(req.params.id);
@@ -1505,6 +1534,73 @@ app.delete("/itemdelete/:itemid", function (req, res) {
     }
   );
 });
+
+
+//http://localhost:3000/cartPay/1/2
+//揪團
+app.post("/cartPay/:cartid/:uesrid", function (req, res) {
+  let cartid = req.params.cartid;
+  let userid = req.params.userid;
+  console.log(cartid, userid);
+  let data = {
+    cart_id: req.params.cartid,
+    user_id: req.params.userid,
+    user_name: req.body.user_name,
+    brand_id: req.body.brand_id,
+    branch_id: req.body.branch_id,
+    product_id: req.body.product_id,
+    item_img: req.body.item_img,
+    item_name: req.body.item_name,
+    item_size: req.body.item_size,
+    item_sugar: req.body.item_sugar,
+    item_temperatures: req.body.item_temperatures,
+    item_price: req.body.item_price,
+    item_ingredient: req.body.item_ingredient,
+    ingredient_price: req.body.ingredient_price,
+    item_quantity: req.body.item_quantity,
+    total_price: req.body.total_price,
+    updatetime: req.body.updatetime,
+    createtime: req.body.createtime,
+  };
+
+  console.log(data);
+  //res.send(JSON.stringify(req.body));
+  conn.query(
+    "INSERT INTO cartdetails(cart_id, user_id, user_name, brand_id, branch_id, product_id, item_img, item_name, item_size, item_sugar, item_temperatures, item_price, item_ingredient, ingredient_price, item_quantity, total_price, updatetime, createtime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+    [
+      data.cart_id, //req.params.cartid
+      data.user_id, //req.params.userid
+      data.user_name,
+      data.brand_id,
+      data.branch_id,
+      data.product_id,
+      data.item_img,
+      data.item_name,
+      data.item_size,
+      data.item_sugar,
+      data.item_temperatures,
+      data.item_price,
+      data.item_ingredient,
+      data.ingredient_price,
+      data.item_quantity,
+      data.total_price,
+      data.updatetime,
+      data.createtime,
+    ],
+    function (err, rows) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("成功寫入");
+      }
+    }
+  );
+
+  // "INSERT INTO order_details (orders_id, details_name, details_size, details_sugar, details_mperatures, details_ingredient, details_amount, details_quantity, details_total,updatetime, createtime) VALUES  ?",
+
+  res.end();
+});
+
 
 
 //line pay串接
