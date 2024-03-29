@@ -48,16 +48,18 @@
 
 .col-7.buy {
     background-color: #ededed;
-    border-radius: 8px;
+    border-radius: 40px;
     display: flex;
     justify-content: center; 
     align-items: flex-start;
+    height: 60px;
+    border: 1px solid #003C95;
 }
 
 .buytext {
     display: flex;
     justify-content: center; 
-    margin-top: 12px;
+    color: #003C95;
 }
 
 .text-title-b {
@@ -65,6 +67,19 @@
     font-weight: 600;
     color: #333;
 }
+
+.buy:hover .joinjoin {
+    color:#F2AF21; /* 或者你想要的其他顏色 */
+}
+
+.buy:hover .buytext {
+    color: #F2AF21; /* 或者你想要的其他顏色 */
+}
+
+.col-7.buy:hover {
+    border-color: #F2AF21; /* 或者你想要的其他顏色 */
+}
+
 
 /* .btn-join {
     background-color: #003c95;
@@ -159,12 +174,12 @@
 
 
 /* 電腦商店資訊 */
-@media (min-width: 991px) {
+@media (min-width: 1731px) {
     .col-3.storeBox {
         position: absolute;
-        top: 148px;
+        top: 165px;
         left: 115px;
-        width: 350px;
+        /* width: 350px; */
         height: 250px;
         z-index: 50;
         background-color: rgba(232, 232, 232, 0.6);
@@ -177,10 +192,10 @@
 }
 
 /* 手機商店資訊 */
-@media (max-width: 992px) {
+@media (max-width: 1730px) {
     .col-3.storeBox {
         /* position: absolute; */
-        width: 410px;
+        width: 100%;
         height: 80px;
         z-index: 50;
         background-color: rgba(232, 232, 232, 0.6);
