@@ -33,13 +33,14 @@ class order extends Component {
             modelproductingredients: {}, // 該品牌配料表的資料
             modelresulttemperaturesugar: {}, // 對話盒的尺寸溫度甜度資料
             selectsize: 0, // 選中的size
-            selectedPrice:0,
-            totalPrice:0,
-            selectedProduct: { choose_sugar : 0 }, //選中的商品的甜度資料
-            selectedProduct: {choose_size_0 : 0 }, //選中的商品的S尺寸價格
-            selectedProduct: {choose_size_1 : 1 }, //選中的商品的S尺寸價格
-            selectedProduct: {choose_size_2 : 2 }, //選中的商品的S尺寸價格
-            selectedIngredients: {},
+            totalPrice: 0,
+            selectedProduct: { choose_sugar: 0 }, //選中的商品的甜度資料
+            selectedProduct: { choose_size_0: 0 }, //選中的商品的S尺寸價格
+            selectedProduct: { choose_size_1: 1 }, //選中的商品的S尺寸價格
+            selectedProduct: { choose_size_2: 2 }, //選中的商品的S尺寸價格
+            selectsize: null, // 存儲所選的尺寸
+            selectedPrice: 0, // 存儲所選尺寸的價格
+            selecting: 0, // 所選的配料價格,預設為10
             productCkeck: {
                 size: "",
                 temperatures: "",
@@ -127,6 +128,23 @@ class order extends Component {
 
     // }
 
+    // 點選之後會去存取所點選的尺寸及尺寸價格資料
+    // handleSizeChange = (size, price) => {
+    //     this.setState({
+    //         selectsize: size,
+    //         selectedPrice: price
+    //     });
+    // }
+
+    // 點選之後會去存取的配料價格
+    // handleingChange = (ing) => {
+    //     // alert('kk')
+    //     this.setState({
+    //         selecting: ing
+    //     });
+    // }
+
+
     // 顯示溫度 // 判斷所選的溫度會跳出來的尺寸
     showTemp = (temp) => {
         // 選擇 m 冷的
@@ -144,7 +162,7 @@ class order extends Component {
                 return this.state.hotTemp.map((item) => {
                     return (
                         <div className="col-4 form-check" key={item}>
-                            <input className="form-check-input order" type="radio" name="temperature"id={item} value="1"></input>
+                            <input className="form-check-input order" type="radio" name="temperature" id={item} value="1"></input>
                             <label className="form-check-label" htmlFor={item} >&nbsp;{item}</label>
                         </div>
                     );
@@ -162,7 +180,7 @@ class order extends Component {
                     {this.state.hotTemp.map((item) => {
                         return (
                             <div className="col-4 form-check" key={item}>
-                                <input className="form-check-input order" type="radio" name="temperature"id={item} value="1"></input>
+                                <input className="form-check-input order" type="radio" name="temperature" id={item} value="1"></input>
                                 <label className="form-check-label" htmlFor={item}  >&nbsp;{item}</label>
                             </div>
                         );
@@ -171,7 +189,7 @@ class order extends Component {
                 )
             } else if (this.state.comparisonInfo.choose_size_0 == 4) {
                 return <div className="col-4 form-check" >
-                    <input className="form-check-input order" type="radio" name="temperature"  value="1" checked></input>
+                    <input className="form-check-input order" type="radio" name="temperature" value="1" checked></input>
                     <label className="form-check-label"  >&nbsp;冷固定</label>
                 </div>
             } else if (this.state.comparisonInfo.choose_size_0 == 5) {
@@ -187,7 +205,7 @@ class order extends Component {
                 return this.state.coldTemp.map((item) => {
                     return (
                         <div className="col-4 form-check" key={item}>
-                            <input className="form-check-input order" type="radio" name="temperature"  id={item}value="1"></input>
+                            <input className="form-check-input order" type="radio" name="temperature" id={item} value="1"></input>
                             <label className="form-check-label" htmlFor={item}>&nbsp;{item}</label>
                         </div>
                     );
@@ -197,7 +215,7 @@ class order extends Component {
                     return (
                         <div className="col-4 form-check" key={item}>
                             <input className="form-check-input order" type="radio" name="temperature" id={item} value="1"></input>
-                            <label className="form-check-label"  htmlFor={item}>&nbsp;{item}</label>
+                            <label className="form-check-label" htmlFor={item}>&nbsp;{item}</label>
                         </div>
                     );
                 });
@@ -208,7 +226,7 @@ class order extends Component {
                         return (
                             <div className="col-4 form-check" key={item}>
                                 <input className="form-check-input order" type="radio" name="temperature" id={item} value="1"></input>
-                                <label className="form-check-label"  htmlFor={item}>&nbsp;{item}</label>
+                                <label className="form-check-label" htmlFor={item}>&nbsp;{item}</label>
                             </div>
                         );
                     })}
@@ -216,7 +234,7 @@ class order extends Component {
                         return (
                             <div className="col-4 form-check " key={item}>
                                 <input className="form-check-input order" type="radio" name="temperature" id={item} value="1"></input>
-                                <label className="form-check-label"  htmlFor={item}>&nbsp;{item}</label>
+                                <label className="form-check-label" htmlFor={item}>&nbsp;{item}</label>
                             </div>
                         );
                     })}
@@ -224,7 +242,7 @@ class order extends Component {
                 )
             } else if (this.state.comparisonInfo.choose_size_1 == 4) {
                 return <div className="col-4 form-check">
-                    <input className="form-check-input order" type="radio" name="temperature"  value="1" checked></input>
+                    <input className="form-check-input order" type="radio" name="temperature" value="1" checked></input>
                     <label className="form-check-label" >&nbsp;冷固定</label>
                 </div>
             } else if (this.state.comparisonInfo.choose_size_1 == 5) {
@@ -278,12 +296,12 @@ class order extends Component {
                 )
             } else if (this.state.comparisonInfo.choose_size_2 == 4) {
                 return <div className="col-4 form-check">
-                    <input className="form-check-input order" type="radio" name="temperature"  value="1" checked></input>
+                    <input className="form-check-input order" type="radio" name="temperature" value="1" checked></input>
                     <label className="form-check-label" >&nbsp;冷固定</label>
                 </div>
             } else if (this.state.comparisonInfo.choose_size_2 == 5) {
                 return <div className="col-4 form-check">
-                    <input className="form-check-input order" type="radio" name="temperature"  value="1" checked></input>
+                    <input className="form-check-input order" type="radio" name="temperature" value="1" checked></input>
                     <label className="form-check-label" >&nbsp;熱固定</label>
                 </div>
             }
@@ -360,9 +378,12 @@ class order extends Component {
         }
     }
 
+    // 選擇尺寸會出現價格
+    // price = () => {
+    //     var chooseprice = [this.state.choose_size_0, this.state.choose_size_1, this.state.choose_size_2]
+    //     console.log(chooseprice)
 
-    
-    
+    // }
 
 
 
@@ -400,43 +421,9 @@ class order extends Component {
         };
 
 
-
-        // var resultselectproduct = await axios.get(`http://localhost:8000/order/create/${this.state.selectedProduct.product_id}`);
-        // // alert(JSON.stringify(resultselectproduct))
-
         this.setState(newState);
         console.log(this.state);
     }
-
-    // //尺寸
-    // size_change = (e) => {
-    //     // console.log(e.target.dataset.temperatures);
-    //     let newState = { ...this.state };
-    //     newState.productEdit[8].cats_item.item_size = e.target.value;
-
-    //     newState.productEdit[8].cats_item.item_price = Number(
-    //         e.target.dataset.products_price
-    //     );
-    //     this.setState(newState);
-    //     console.log(newState);
-    //     // console.log(newState);
-    // };
-
-    //甜度
-    // sugar_change = (e) => {
-    //     //console.log(e.target.value);
-    //     let newState = { ...this.state };
-    //     newState.productEdit[8].cats_item.item_sugar = e.target.value;
-    //     this.setState(newState);
-    // };
-
-    // //溫度
-    // temperatures_change = (e) => {
-    //     //console.log(e.target.value);
-    //     let newState = { ...this.state };
-    //     newState.productEdit[8].cats_item.item_temperatures = e.target.value;
-    //     this.setState(newState);
-    // };
 
     //複製揪團連結
     shareLink = (e) => {
@@ -458,10 +445,8 @@ class order extends Component {
             event.preventDefault(); // 阻止默认事件
             this.setState({
                 selectsize: 0,
-                selectedPrice: 0, // 清除金額
-                totalPrice:0,
+                selectedPrice: 0 // 清除金額
             });
-
         }
     }
 
@@ -476,62 +461,51 @@ class order extends Component {
         });
     }
 
+    // 處理配料的價格
+    handleIngredientChange = (event) => {
+        const ingredientKey = event.target.value;
+        const isChecked = event.target.checked;
+        const ingredientPrice = parseFloat(event.target.getAttribute('data-price'));
 
-// 處理配料的價格
-handleIngredientChange = (event) => {
-    const ingredientKey = event.target.value;
-    const isChecked = event.target.checked;
-    const ingredientPrice = parseFloat(event.target.getAttribute('data-price')); 
+        this.setState(prevState => {
+            const updatedIngredients = {
+                ...prevState.selectedIngredients,
+                [ingredientKey]: { checked: isChecked, price: ingredientPrice }
+            };
 
-    this.setState(prevState => {
-        const updatedIngredients = {
-            ...prevState.selectedIngredients,
-            [ingredientKey]: { checked: isChecked, price: ingredientPrice }
-        };
+            // 更新總額
+            const totalPrice = this.calculateTotalPrice(prevState.selectsize, updatedIngredients);
 
-        // 更新總額
-        const totalPrice = this.calculateTotalPrice(prevState.selectsize, updatedIngredients);
-
-        return {
-            selectedIngredients: updatedIngredients,
-            totalPrice: totalPrice
-        };
-    });
-}
-
-
-
-
-
-
-
-calculateTotalPrice = (selectedSize, selectedIngredients) => {
-    let totalPrice = 0;
-    switch (selectedSize) {
-        case 1:
-            totalPrice += this.state.selectedProduct.products_price_0;
-            break;
-        case 2:
-            totalPrice += this.state.selectedProduct.products_price_1;
-            break;
-        case 3:
-            totalPrice += this.state.selectedProduct.products_price_2;
-            break;
-        default:
-            break;
+            return {
+                selectedIngredients: updatedIngredients,
+                totalPrice: totalPrice
+            };
+        });
     }
-    Object.keys(selectedIngredients).forEach(ingredient => {
-        if (selectedIngredients[ingredient].checked) {
-            totalPrice += selectedIngredients[ingredient].price;
+
+    // 總金額
+    calculateTotalPrice = (selectedSize, selectedIngredients) => {
+        let totalPrice = 0;
+        switch (selectedSize) {
+            case 1:
+                totalPrice += this.state.selectedProduct.products_price_0;
+                break;
+            case 2:
+                totalPrice += this.state.selectedProduct.products_price_1;
+                break;
+            case 3:
+                totalPrice += this.state.selectedProduct.products_price_2;
+                break;
+            default:
+                break;
         }
-    });
-    return totalPrice;
-}
-
-
-
-
-    
+        Object.keys(selectedIngredients).forEach(ingredient => {
+            if (selectedIngredients[ingredient].checked) {
+                totalPrice += selectedIngredients[ingredient].price;
+            }
+        });
+        return totalPrice;
+    }
 
 
     render() {
