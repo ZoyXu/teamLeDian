@@ -510,11 +510,21 @@ svg {
 }
 
 /* 加入購物車按鈕 */
-.btn-outline-warning {
-    --bs-btn-color: #003C95 !important;
+/* .btn-outline-warning {
+    --bs-btn-color: #ffc107 !important;
     --bs-btn-border-color: #003C95 !important;
     --bs-btn-hover-color: #fff !important;
+} */
+
+.btn.btn-outline-warning.btn.btn-primary.cartpay {
+    --bs-btn-bg :#fff;
+    border-color:#F2AF21;
 }
+
+.btn.btn-outline-warning.btn.btn-primary.cartpay:hover {
+    color: #003C95;
+}
+
 
 /* 加減按鈕 */
 .btn.add.btn-outline-warning {
@@ -570,3 +580,4 @@ svg {
     background-color:#F2AF21 !important;
     border-color:#F2AF21 !important;
 }
+

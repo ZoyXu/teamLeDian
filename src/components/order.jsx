@@ -10,6 +10,7 @@ import { PiCoins } from "react-icons/pi";
 import { GiCancel } from "react-icons/gi";
 import { QRCodeCanvas } from "qrcode.react";
 import { Newspaper } from "react-bootstrap-icons";
+import Toast from 'react-bootstrap/Toast';
 
 class order extends Component {
   constructor(props) {
@@ -44,6 +45,7 @@ class order extends Component {
         temperatures: "",
         sugar: "",
       },
+      showToast: false // 初始状态为不显示Toast
     };
   }
 
@@ -150,8 +152,19 @@ class order extends Component {
   };
 
   // getProductInfo = () => {
-
   // }
+
+
+  // 点击按钮时显示Toast消息
+  handleShowToast = () => {
+    this.setState({ showToast: true });
+
+
+    // 3 秒后隐藏Toast消息
+    setTimeout(() => {
+      this.setState({ showToast: false });
+    }, 3000);
+  };
 
   // 顯示溫度 // 判斷所選的溫度會跳出來的尺寸
   showTemp = (temp) => {
@@ -232,7 +245,11 @@ class order extends Component {
             })}
           </>
         );
-      } else if (this.state.comparisonInfo.choose_size_0 == 4) {
+      } else if (
+        this.state.comparisonInfo.choose_size_0 == 4 &&
+        this.state.chooseTempName !== "冷固定"
+      ) {
+        this.state.chooseTempName = "冷固定";
         return (
           <div className="col-4 form-check">
             <input
@@ -247,7 +264,11 @@ class order extends Component {
             <label className="form-check-label">&nbsp;冷固定</label>
           </div>
         );
-      } else if (this.state.comparisonInfo.choose_size_0 == 5) {
+      } else if (
+        this.state.comparisonInfo.choose_size_0 == 5 &&
+        this.state.chooseTempName !== "熱固定"
+      ) {
+        this.state.chooseTempName = "熱固定";
         return (
           <div className="col-4 form-check">
             <input
@@ -341,7 +362,11 @@ class order extends Component {
             })}
           </>
         );
-      } else if (this.state.comparisonInfo.choose_size_1 == 4) {
+      } else if (
+        this.state.comparisonInfo.choose_size_1 == 4 &&
+        this.state.chooseTempName !== "冷固定"
+      ) {
+        this.state.chooseTempName = "冷固定";
         return (
           <div className="col-4 form-check">
             <input
@@ -356,7 +381,11 @@ class order extends Component {
             <label className="form-check-label">&nbsp;冷固定</label>
           </div>
         );
-      } else if (this.state.comparisonInfo.choose_size_1 == 5) {
+      } else if (
+        this.state.comparisonInfo.choose_size_1 == 5 &&
+        this.state.chooseTempName !== "熱固定"
+      ) {
+        this.state.chooseTempName = "熱固定";
         return (
           <div className="col-4 form-check">
             <input
@@ -450,7 +479,11 @@ class order extends Component {
             })}
           </>
         );
-      } else if (this.state.comparisonInfo.choose_size_2 == 4) {
+      } else if (
+        this.state.comparisonInfo.choose_size_2 == 4 &&
+        this.state.chooseTempName !== "冷固定"
+      ) {
+        this.state.chooseTempName = "冷固定";
         return (
           <div className="col-4 form-check">
             <input
@@ -465,7 +498,11 @@ class order extends Component {
             <label className="form-check-label">&nbsp;冷固定</label>
           </div>
         );
-      } else if (this.state.comparisonInfo.choose_size_2 == 5) {
+      } else if (
+        this.state.comparisonInfo.choose_size_2 == 5 &&
+        this.state.chooseTempName !== "熱固定"
+      ) {
+        this.state.chooseTempName = "熱固定";
         return (
           <div className="col-4 form-check">
             <input
@@ -543,6 +580,7 @@ class order extends Component {
             name="sugariness"
             value="1"
             id={`sugar0`}
+            data-sugar="甜度固定"
             onChange={this.chooseSugar}
           />
           <label className="form-check-label" htmlFor={`sugar0`}>
@@ -559,6 +597,7 @@ class order extends Component {
             name="sugariness"
             value="1"
             id={`sugar0`}
+            data-sugar="無糖"
             onChange={this.chooseSugar}
           />
           <label className="form-check-label" htmlFor={`sugar0`}>
@@ -576,6 +615,7 @@ class order extends Component {
               name="sugariness"
               value="1"
               id={`sugar${i}`}
+              data-sugar={name}
               onChange={this.chooseSugar}
             />
             <label className="form-check-label" htmlFor={`sugar${i}`}>
@@ -596,6 +636,7 @@ class order extends Component {
                   name="sugariness"
                   value="1"
                   id={`sugar${i}`}
+                  data-sugar={name}
                   onChange={this.chooseSugar}
                 />
                 <label className="form-check-label" htmlFor={`sugar${i}`}>
@@ -616,6 +657,7 @@ class order extends Component {
               name="sugariness"
               value="1"
               id={`sugar${i}`}
+              data-sugar={name}
               onChange={this.chooseSugar}
             />
             <label className="form-check-label" htmlFor={`sugar${i}`}>
@@ -634,6 +676,7 @@ class order extends Component {
               name="sugariness"
               value="1"
               id={`sugar${i}`}
+              data-sugar={name}
               onChange={this.chooseSugar}
             />
             <label className="form-check-label" htmlFor={`sugar${i}`}>
@@ -752,13 +795,13 @@ class order extends Component {
         selectsize: 0,
         selectedPrice: 0, // 清除金額
         totalPrice: 0,
+        item_quantity: 1,
       });
     }
   };
 
   // 加入購物車
   cartpay = async (e) => {
-    alert("0k");
     let serverData = {
       cart_id: this.state.cart_id,
       user_id: this.state.user_id, //req.params.userid
@@ -1092,9 +1135,15 @@ class order extends Component {
                 ></img>
               </div>
 
-              <div className="col-7 buy btn" type="button" data-bs-toggle="modal" data-bs-target="#exampleModaljoin" id="joinjoin">
-                <BsPeopleFill className="fs-4 my-auto text-center me-3 joinjoin" />
-                <h3 className='buytext my-auto text-center'> 揪團訂購 </h3>
+              <div
+                className="col-7 buy btn"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#exampleModaljoin"
+                id="joinjoin"
+              >
+                {/* <BsPeopleFill className="fs-4 my-auto text-center me-3 joinjoin" /> */}
+                <h3 className="buytext my-auto text-center"> 揪團訂購 </h3>
               </div>
               <div className="col-1"></div>
             </div>
@@ -1165,10 +1214,7 @@ class order extends Component {
                         <QRCodeCanvas value="https://order.nidin.shop/gb/men" />
                       </div>
                       <div className="col-6 px-0">
-                        <img
-                          src="/img/users/LeDian.png"
-                          alt="brand-logo"
-                        />
+                        <img src="/img/users/LeDian.png" alt="brand-logo" />
                       </div>
                     </div>
                   </div>
@@ -2104,9 +2150,9 @@ class order extends Component {
                   </div>
                   <div className="d-grid gap-2 col-8 mx-auto">
                     <button
-                      className="btn btn-outline-warning"
+                      className="btn btn-outline-warning btn-primary cartpay"
                       type="button"
-                      onClick={this.cartpay}
+                      onClick={() => { this.handleShowToast(); this.cartpay(); }}
                     >
                       加入購物車
                     </button>
@@ -2116,6 +2162,29 @@ class order extends Component {
             </div>
           </div>
         </div>
+
+        <div>
+          <Toast
+            show={this.state.showToast}
+            onClose={() => this.setState({ showToast: false })}
+            delay={7000} // 7 秒后自动隐藏
+            aria-label="Close"
+            style={{
+              position: 'fixed',
+              bottom: 20,
+              right: 20,
+            }}
+          >
+            <Toast.Header>
+              <strong className="me-auto"><h5 className="textcart fw-bolder text-warning"> {brandInfo.brand_name}  {this.state.selectedProduct.product_name} </h5> </strong>
+              {/* <small>11 mins ago</small> */}
+            </Toast.Header>
+            <Toast.Body>
+              <h5 class="text-warning"> 已加入購物車</h5>
+            </Toast.Body>
+          </Toast>
+        </div>
+
 
         {/* footer */}
         <div id="footer" className="d-flex">
@@ -2183,23 +2252,6 @@ class order extends Component {
           </div>
         </div>
 
-        {/* 購物車吐司訊息 */}
-        {/* <button type="button" className="btn btn-primary" id="liveToastBtn">Show live toast</button>
-
-            <div className="position-fixed bottom-0 end-0 p-3">
-                <div id="liveToast" className="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div className="toast-header">
-                        <img src="..." className="rounded me-2" alt="...">
-                            <strong className="me-auto">Bootstrap</strong>
-                            <small>11 mins ago</small>
-                            <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </img>
-                    </div>
-                    <div className="toast-body">
-                        Hello, world! This is a toast message.
-                    </div>
-                </div>
-            </div> */}
       </React.Fragment>
     ); // end of redner()
   }
