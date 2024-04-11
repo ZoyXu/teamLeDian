@@ -10,7 +10,7 @@ import { PiCoins } from "react-icons/pi";
 import { GiCancel } from "react-icons/gi";
 import { QRCodeCanvas } from "qrcode.react";
 import { Newspaper } from "react-bootstrap-icons";
-import Toast from 'react-bootstrap/Toast';
+import Toast from "react-bootstrap/Toast";
 
 class order extends Component {
   constructor(props) {
@@ -45,7 +45,8 @@ class order extends Component {
         temperatures: "",
         sugar: "",
       },
-      showToast: false // 初始状态为不显示Toast
+      showToast: false, // 初始状态为不显示Toast
+      successMessage: "",
     };
   }
 
@@ -54,6 +55,20 @@ class order extends Component {
     //
     let newState = { ...this.state };
     const userData = JSON.parse(localStorage.getItem("userdata"));
+    if (userData) {
+      axios
+        .get(`http://localhost:8000/user/${userData.user_id}`)
+        .then((response) => {
+          const userImg = response.data.user_img
+            ? response.data.user_img
+            : "LeDian.png";
+          this.setState({ userImg, userData });
+        })
+        .catch((error) => {
+          console.error("Failed to fetch user data:", error);
+        });
+    }
+
     let user_id = userData.user_id;
     let cart_id = new Date().getTime() + user_id;
     newState.user_id = user_id; //使用者id
@@ -152,13 +167,12 @@ class order extends Component {
   };
 
   // getProductInfo = () => {
-  // }
 
+  // }
 
   // 点击按钮时显示Toast消息
   handleShowToast = () => {
     this.setState({ showToast: true });
-
 
     // 3 秒后隐藏Toast消息
     setTimeout(() => {
@@ -799,9 +813,25 @@ class order extends Component {
       });
     }
   };
+  //清除加入購物車內容
+  handleCartOkClick = (event) => {
+    var formCheckInput = document.getElementsByClassName("form-check-input");
+    for (var i = 0; i < formCheckInput.length; i++) {
+      if (formCheckInput[i].checked) {
+        formCheckInput[i].checked = false;
+      }
+    }
+    this.setState({
+      selectsize: 0,
+      selectedPrice: 0, // 清除金額
+      totalPrice: 0,
+      item_quantity: 1,
+    });
+  };
 
   // 加入購物車
   cartpay = async (e) => {
+    let newState = { ...this.state };
     let serverData = {
       cart_id: this.state.cart_id,
       user_id: this.state.user_id, //req.params.userid
@@ -822,6 +852,20 @@ class order extends Component {
       updatetime: new Date(),
       createtime: new Date(),
     };
+    console.log(serverData);
+    if (
+      serverData.item_size === undefined ||
+      serverData.item_sugar === undefined ||
+      serverData.item_temperatures === undefined
+    ) {
+      newState.successMessage = "加入購物車失敗 請選擇尺寸、甜度、溫度";
+      this.setState(newState);
+      this.handleShowToast();
+      return;
+    }
+    newState.successMessage = "成功加入購物車";
+    this.setState(newState);
+    this.handleShowToast();
     let config = {
       headers: {
         "content-type": "application/json",
@@ -979,109 +1023,45 @@ class order extends Component {
     return (
       <React.Fragment>
         {/* header */}
-        <div id="orderheader">
-          <div
-            id="header"
-            style={{
-              boxShadow: "1px 3px 10px #cccccc",
-              marginBottom: "4px",
-            }}
-            className="d-flex justify-content-between"
-          >
-            <div className="col-7 col-sm-7 col-md-6 col-xl-5 d-flex ms-2 justify-content-between align-items-center">
-              <div id="menu" className="col-8">
-                <h2
-                  className="btn text-start  my-auto fs-4"
-                  onClick={this.toggleMenuNav}
-                >
-                  ☰
-                </h2>
-              </div>
-              <h4
-                id="homeBtn"
-                className="my-auto btn"
-                onClick={() => {
-                  window.location = "/index";
-                }}
+        <div
+          id="header"
+          style={{
+            boxShadow: "1px 3px 10px #cccccc",
+            marginBottom: "4px",
+          }}
+          className="d-flex justify-content-between"
+        >
+          <div className="col-7 col-sm-7 col-md-6 col-xl-5 d-flex ms-2 justify-content-between align-items-center">
+            <div id="menu" className="col-8">
+              <h2
+                className="btn text-start  my-auto fs-4"
+                onClick={this.toggleMenuNav}
               >
-                <img
-                  id="logo"
-                  src="/img/index/LeDian_LOGO-05.png"
-                  alt="logo"
-                ></img>
-              </h4>
-              <h4
-                className="my-auto p-0 btn headerText menuBtn d-flex align-items-center justify-content-center"
-                onClick={this.cartMenuClick}
-              >
-                <HiOutlineShoppingBag className="fs-4" />
-                購物車
-              </h4>
-              <h4
-                className="my-auto p-0 btn headerText menuBtn d-flex align-items-center justify-content-center"
-                onClick={() => {
-                  window.location = "/brand";
-                }}
-              >
-                <PiMedal className="fs-4" />
-                品牌專區
-              </h4>
-              <h4
-                className="my-auto p-0 btn headerText menuBtn d-flex align-items-center justify-content-center"
-                onClick={this.pointinfoShow}
-              >
-                <PiCoins className="fs-4" />
-                集點資訊
-              </h4>
+                ☰
+              </h2>
             </div>
-            <div id="pointinfo">
-              <button id="pointinfoclose" onClick={this.pointinfoHide}>
-                <GiCancel className="fs-2 text-light" />
-              </button>
-              <h1>集點資訊</h1>
-              <p>．每消費20元即可累積1點。</p>
-              <p>．每點可折抵1元消費金額。</p>
-              <p>．點數可在下次消費時折抵使用。</p>
-              <p>．點數不可轉讓，不可兌換現金，不可合併使用。</p>
-              <p>．本集點活動以公告為準，如有更改，恕不另行通知。</p>
-            </div>
-
-            <div className="d-flex me-2 align-items-center">
-              {this.loginCheck()}
-              <div id="memberNav" className="collapse">
-                <div className="p-2">
-                  <h4
-                    className="headerText text-center my-2"
-                    onClick={() => {
-                      window.location = "/profile";
-                    }}
-                  >
-                    會員中心
-                  </h4>
-                  <hr />
-                  <h4
-                    className="headerText text-center my-2"
-                    onClick={this.logoutClick}
-                  >
-                    登出
-                  </h4>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            id="menuNav"
-            className="menuNav d-flex flex-column align-items-center"
-          >
             <h4
-              className="menuText my-3 mainColor border-bottom border-secondary"
+              id="homeBtn"
+              className="my-auto btn"
+              onClick={() => {
+                window.location = "/index";
+              }}
+            >
+              <img
+                id="logo"
+                src="/img/index/LeDian_LOGO-05.png"
+                alt="logo"
+              ></img>
+            </h4>
+            <h4
+              className="my-auto p-0 btn headerText menuBtn d-flex align-items-center justify-content-center"
               onClick={this.cartMenuClick}
             >
               <HiOutlineShoppingBag className="fs-4" />
               購物車
             </h4>
             <h4
-              className="menuText my-3 mainColor border-bottom border-secondary"
+              className="my-auto p-0 btn headerText menuBtn d-flex align-items-center justify-content-center"
               onClick={() => {
                 window.location = "/brand";
               }}
@@ -1090,15 +1070,99 @@ class order extends Component {
               品牌專區
             </h4>
             <h4
-              className="menuText my-3 mainColor border-bottom border-secondary"
+              className="my-auto p-0 btn headerText menuBtn d-flex align-items-center justify-content-center"
               onClick={this.pointinfoShow}
             >
               <PiCoins className="fs-4" />
               集點資訊
             </h4>
           </div>
-        </div>
+          <div id="pointinfo">
+            <button id="pointinfoclose" onClick={this.pointinfoHide}>
+              <GiCancel className="fs-2 text-light" />
+            </button>
+            <h1>集點資訊</h1>
+            <p>．每消費20元即可累積1點。</p>
+            <p>．每點可折抵1元消費金額。</p>
+            <p>．點數可在下次消費時折抵使用。</p>
+            <p>．點數不可轉讓，不可兌換現金，不可合併使用。</p>
+            <p>．本集點活動以公告為準，如有更改，恕不另行通知。</p>
+          </div>
 
+          <div className="d-flex me-2 align-items-center">
+            {this.state.userData ? (
+              <h4
+                id="loginBtn"
+                className="my-auto btn headerText text-nowrap"
+                onClick={this.toggleMemberNav}
+              >
+                <img
+                  id="memberHeadshot"
+                  src={`/img/users/${this.state.userImg}`}
+                  alt="memberHeadshot"
+                  className="img-fluid my-auto mx-1 rounded-circle border"
+                />
+                會員專區▼
+              </h4>
+            ) : (
+              <h4
+                id="loginBtn"
+                className="my-auto btn headerText align-self-center"
+                onClick={this.toggleMemberNav}
+              >
+                登入/註冊
+              </h4>
+            )}
+
+            <div id="memberNav" className="collapse">
+              <div className="p-2">
+                <h4
+                  className="headerText text-center my-2"
+                  onClick={() => {
+                    window.location = "/profile";
+                  }}
+                >
+                  會員中心
+                </h4>
+                <hr />
+                <h4
+                  className="headerText text-center my-2"
+                  onClick={this.logoutClick}
+                >
+                  登出
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          id="menuNav"
+          className="menuNav d-flex flex-column align-items-center"
+        >
+          <h4
+            className="menuText my-3 mainColor border-bottom border-secondary"
+            onClick={this.cartMenuClick}
+          >
+            <HiOutlineShoppingBag className="fs-4" />
+            購物車
+          </h4>
+          <h4
+            className="menuText my-3 mainColor border-bottom border-secondary"
+            onClick={() => {
+              window.location = "/brand";
+            }}
+          >
+            <PiMedal className="fs-4" />
+            品牌專區
+          </h4>
+          <h4
+            className="menuText my-3 mainColor border-bottom border-secondary"
+            onClick={this.pointinfoShow}
+          >
+            <PiCoins className="fs-4" />
+            集點資訊
+          </h4>
+        </div>
         {/* 電腦版banner */}
         <div className="row computer">
           <div className="col-12">
@@ -1282,14 +1346,14 @@ class order extends Component {
                                       <div className="col-2"></div>
                                       <div className="col-5">
                                         {(product.choose_size_0 == 1) |
-                                          (product.choose_size_0 == 3) |
-                                          (product.choose_size_0 == 4) |
-                                          (product.choose_size_1 == 1) |
-                                          (product.choose_size_1 == 3) |
-                                          (product.choose_size_1 == 4) |
-                                          (product.choose_size_2 == 1) |
-                                          (product.choose_size_2 == 3) |
-                                          (product.choose_size_0 == 4) ? (
+                                        (product.choose_size_0 == 3) |
+                                        (product.choose_size_0 == 4) |
+                                        (product.choose_size_1 == 1) |
+                                        (product.choose_size_1 == 3) |
+                                        (product.choose_size_1 == 4) |
+                                        (product.choose_size_2 == 1) |
+                                        (product.choose_size_2 == 3) |
+                                        (product.choose_size_0 == 4) ? (
                                           <img
                                             src={"/img/icon/snowflake.png"}
                                             className="cold"
@@ -1297,14 +1361,14 @@ class order extends Component {
                                           ></img>
                                         ) : null}
                                         {(product.choose_size_0 == 2) |
-                                          (product.choose_size_0 == 3) |
-                                          (product.choose_size_0 == 5) |
-                                          (product.choose_size_1 == 2) |
-                                          (product.choose_size_1 == 3) |
-                                          (product.choose_size_1 == 5) |
-                                          (product.choose_size_2 == 2) |
-                                          (product.choose_size_2 == 3) |
-                                          (product.choose_size_0 == 5) ? (
+                                        (product.choose_size_0 == 3) |
+                                        (product.choose_size_0 == 5) |
+                                        (product.choose_size_1 == 2) |
+                                        (product.choose_size_1 == 3) |
+                                        (product.choose_size_1 == 5) |
+                                        (product.choose_size_2 == 2) |
+                                        (product.choose_size_2 == 3) |
+                                        (product.choose_size_0 == 5) ? (
                                           <img
                                             src={"/img/icon/hotsale.png"}
                                             className="hot"
@@ -1341,7 +1405,7 @@ class order extends Component {
 
         {/* 對話盒Modal */}
         <div
-          className="modal fade"
+          className="modal fade "
           id="exampleModal"
           onClick={this.handleClick}
           tabIndex="-1"
@@ -1631,14 +1695,14 @@ class order extends Component {
                           {
                             // 拿取商品資料
                             this.state.modelproductingredients &&
-                            // 判斷是否可以加配料
-                            (this.state.selectedProduct.choose_ingredient ===
+                              // 判斷是否可以加配料
+                              (this.state.selectedProduct.choose_ingredient ===
                               1 ? (
-                              <div className="row sugarinesscheck">
-                                {/* 配料選項 */}
-                                {/* 判斷是否有這個配料 */}
-                                {this.state.modelproductingredients
-                                  .ingredient_0 && (
+                                <div className="row sugarinesscheck">
+                                  {/* 配料選項 */}
+                                  {/* 判斷是否有這個配料 */}
+                                  {this.state.modelproductingredients
+                                    .ingredient_0 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -1674,9 +1738,9 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {/* 判斷是否有這個配料 */}
-                                {this.state.modelproductingredients
-                                  .ingredient_1 && (
+                                  {/* 判斷是否有這個配料 */}
+                                  {this.state.modelproductingredients
+                                    .ingredient_1 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -1712,9 +1776,9 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {/* 判斷是否有這個配料 */}
-                                {this.state.modelproductingredients
-                                  .ingredient_2 && (
+                                  {/* 判斷是否有這個配料 */}
+                                  {this.state.modelproductingredients
+                                    .ingredient_2 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -1750,8 +1814,8 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {this.state.modelproductingredients
-                                  .ingredient_3 && (
+                                  {this.state.modelproductingredients
+                                    .ingredient_3 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -1787,8 +1851,8 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {this.state.modelproductingredients
-                                  .ingredient_4 && (
+                                  {this.state.modelproductingredients
+                                    .ingredient_4 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -1824,8 +1888,8 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {this.state.modelproductingredients
-                                  .ingredient_5 && (
+                                  {this.state.modelproductingredients
+                                    .ingredient_5 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -1861,8 +1925,8 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {this.state.modelproductingredients
-                                  .ingredient_6 && (
+                                  {this.state.modelproductingredients
+                                    .ingredient_6 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -1898,8 +1962,8 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {this.state.modelproductingredients
-                                  .ingredient_7 && (
+                                  {this.state.modelproductingredients
+                                    .ingredient_7 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -1935,8 +1999,8 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {this.state.modelproductingredients
-                                  .ingredient_8 && (
+                                  {this.state.modelproductingredients
+                                    .ingredient_8 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -1972,8 +2036,8 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {this.state.modelproductingredients
-                                  .ingredient_9 && (
+                                  {this.state.modelproductingredients
+                                    .ingredient_9 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -2009,8 +2073,8 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {this.state.modelproductingredients
-                                  .ingredient_10 && (
+                                  {this.state.modelproductingredients
+                                    .ingredient_10 && (
                                     <div className="col-6 form-check">
                                       <input
                                         className="form-check-input order"
@@ -2046,8 +2110,8 @@ class order extends Component {
                                     </div>
                                   )}
 
-                                {this.state.modelproductingredients
-                                  .ingredient_11 && (
+                                  {this.state.modelproductingredients
+                                    .ingredient_11 && (
                                     <div className="col-4 form-check">
                                       <input
                                         className="form-check-input order"
@@ -2082,8 +2146,8 @@ class order extends Component {
                                       </label>
                                     </div>
                                   )}
-                              </div>
-                            ) : null)
+                                </div>
+                              ) : null)
                           }
                         </div>
                       </div>
@@ -2152,7 +2216,11 @@ class order extends Component {
                     <button
                       className="btn btn-outline-warning btn-primary cartpay"
                       type="button"
-                      onClick={() => { this.handleShowToast(); this.cartpay(); }}
+                      data-bs-dismiss="modal"
+                      onClick={() => {
+                        this.cartpay();
+                        this.handleCartOkClick();
+                      }}
                     >
                       加入購物車
                     </button>
@@ -2166,26 +2234,31 @@ class order extends Component {
         <div>
           <Toast
             show={this.state.showToast}
+            className="order-toast"
             onClose={() => this.setState({ showToast: false })}
             delay={7000} // 7 秒后自动隐藏
             aria-label="Close"
             style={{
-              position: 'fixed',
+              position: "fixed",
               bottom: 20,
               right: 20,
             }}
           >
             <Toast.Header>
-              <strong className="me-auto"><h5 className="textcart fw-bolder text-warning"> {brandInfo.brand_name}  {this.state.selectedProduct.product_name} </h5> </strong>
+              <strong className="me-auto">
+                <h5 className="textcart fw-bolder">
+                  {" "}
+                  {brandInfo.brand_name}{" "}
+                  {this.state.selectedProduct.product_name}{" "}
+                </h5>{" "}
+              </strong>
               {/* <small>11 mins ago</small> */}
             </Toast.Header>
             <Toast.Body>
-              <h5 class="text-warning"> 已加入購物車</h5>
+              <h5>{this.state.successMessage}</h5>
             </Toast.Body>
           </Toast>
         </div>
-
-
         {/* footer */}
         <div id="footer" className="d-flex">
           <div id="footerLogo" className="col-3">
@@ -2252,6 +2325,23 @@ class order extends Component {
           </div>
         </div>
 
+        {/* 購物車吐司訊息 */}
+        {/* <button type="button" className="btn btn-primary" id="liveToastBtn">Show live toast</button>
+
+            <div className="position-fixed bottom-0 end-0 p-3">
+                <div id="liveToast" className="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div className="toast-header">
+                        <img src="..." className="rounded me-2" alt="...">
+                            <strong className="me-auto">Bootstrap</strong>
+                            <small>11 mins ago</small>
+                            <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </img>
+                    </div>
+                    <div className="toast-body">
+                        Hello, world! This is a toast message.
+                    </div>
+                </div>
+            </div> */}
       </React.Fragment>
     ); // end of redner()
   }
@@ -2309,37 +2399,7 @@ class order extends Component {
     this.setState({});
     window.location = "/index";
   };
-  loginCheck = () => {
-    const userData = JSON.parse(localStorage.getItem("userdata"));
-    if (userData) {
-      const userImg = userData.user_img ? userData.user_img : "LeDian.png";
-      return (
-        <h4
-          id="loginBtn"
-          className="my-auto btn headerText text-nowrap"
-          onClick={this.toggleMemberNav}
-        >
-          <img
-            id="memberHeadshot"
-            src={`/img/users/${userImg}`}
-            alt="memberHeadshot"
-            className="img-fluid my-auto mx-1 rounded-circle border"
-          ></img>
-          會員專區▼
-        </h4>
-      );
-    } else {
-      return (
-        <h4
-          id="loginBtn"
-          className="my-auto btn headerText align-self-center"
-          onClick={this.toggleMemberNav}
-        >
-          登入/註冊▼
-        </h4>
-      );
-    }
-  };
+
   cartMenuClick = () => {
     const userData = JSON.parse(localStorage.getItem("userdata"));
     if (userData) {

@@ -1,6 +1,9 @@
 var express = require("express");
 const session = require("express-session");
+const { HmacSHA256 } = require("crypto-js");
+const Base64 = require("crypto-js/enc-base64");
 const multer = require("multer");
+const axios = require("axios");
 var cors = require("cors");
 var app = express();
 app.listen(8000);
@@ -42,8 +45,11 @@ app.get("/index/brand", function (req, res) {
 });
 app.get("/index/products", function (req, res) {
   conn.query(
-    "select product_name, product_img, brand_id, product_id from products where product_img != '無' and product_class_1 = 1",
+    "select product_name, product_img, brand_id, product_id, product_class_1 from products where product_img != 'LeDian' and product_class_1 = 1 and (brand_id = 14 or brand_id = 10 or brand_id = 1 or brand_id = 9)",
     function (err, rows) {
+      if (err) {
+        console.log(err);
+      }
       res.send(JSON.stringify(rows));
     }
   );
@@ -722,11 +728,11 @@ app.post("/login", async function (req, res) {
 app.post("/logout", function (req, res) {
   req.session.destroy(function (err) {
     if (err) {
-      console.error("登出时出错:", err);
-      return res.status(500).json({ error: "登出时出错" });
+      console.error("登出時出錯:", err);
+      return res.status(500).json({ error: "登出時出錯" });
     }
     console.log("會員的 session 已成功清除");
-    return res.status(200).json({ message: "用户已成功登出" });
+    return res.status(200).json({ message: "成功登出" });
   });
 });
 
@@ -790,15 +796,14 @@ app.get("/user/:id", function (req, res) {
     [userId],
     function (err, rows) {
       if (err) {
-        console.error("数据库查询出错:", err);
-        return res.status(500).json({ error: "数据库查询出错" });
+        console.error("查詢錯誤:", err);
+        return res.status(500).json({ error: "查詢錯誤" });
       }
       if (rows.length === 0) {
         console.log("找不到用户");
         return res.status(404).json({ error: "找不到用户" });
       }
       const userData = rows[0];
-      console.log("用户数据:", userData);
       res.json(userData);
     }
   );
@@ -824,7 +829,6 @@ app.get("/regions", function (req, res) {
     res.json(rows);
   });
 });
-
 //區域表
 app.get("/region/:cityId", function (req, res) {
   const cityId = req.params.cityId;
@@ -920,6 +924,58 @@ app.post("/updateUserData/:id", (req, res) => {
   );
 });
 
+app.post("/updateUserPoints/:userId", (req, res) => {
+  const userId = req.params.userId;
+  const pointsToAdd = req.body.pointsToAdd;
+
+  conn.query(
+    "SELECT points FROM users WHERE user_id = ?",
+    [userId],
+    (error, results) => {
+      if (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+
+      if (results.length === 0) {
+        res
+          .status(404)
+          .json({ error: "User not found or points data not found" });
+        return;
+      }
+
+      const currentPoints = results[0].points;
+      const updatedPoints = currentPoints + pointsToAdd;
+
+      conn.query(
+        "UPDATE users SET points = ? WHERE user_id = ?",
+        [updatedPoints, userId],
+        (error, results) => {
+          if (error) {
+            console.error("Error:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+            return;
+          }
+          conn.query(
+            "UPDATE orders SET updatedpoints = 1 WHERE user_id = ?",
+            [userId],
+            (error, results) => {
+              if (error) {
+                console.error("Error:", error);
+                res.status(500).json({ error: "Internal Server Error" });
+                return;
+              }
+
+              res.json({ updatedPoints: updatedPoints });
+            }
+          );
+        }
+      );
+    }
+  );
+});
+
 //驗證修改密碼前是否正確
 app.post("/verifyPassword", async function (req, res) {
   const userId = req.body.userId;
@@ -975,86 +1031,119 @@ app.post("/changePassword", async function (req, res) {
   }
 });
 
-app.get("/orders/:userId", (req, res) => {
+app.get("/profile/orders/:userId", (req, res) => {
   const userId = req.params.userId;
   conn.query(
     "SELECT * FROM orders WHERE user_id = ?",
     [userId],
     (error, results) => {
       if (error) {
-        // console.error('Failed to fetch orders data:', error);
         res.status(500).json({ error: "Failed to fetch orders data" });
       } else {
-        console.log("Orders data:", results);
         res.status(200).json(results);
       }
     }
   );
 });
 
-app.get("/order_details/:orderId", (req, res) => {
+app.get("/profile/order_details/:orderId", (req, res) => {
   const orderId = req.params.orderId;
   conn.query(
     "SELECT * FROM order_details WHERE orders_id = ?",
     [orderId],
     (error, results) => {
       if (error) {
-        // console.error('Error querying database:', error);
         res.status(500).send("Internal server error");
         return;
       }
       if (results.length === 0) {
         res.status(404).send("Order details not found");
       } else {
-        console.log("order_details data:", results);
         res.json(results);
       }
     }
   );
 });
 
-// app.get('/branch/:branchId', (req, res) => {
-//   const branchId = req.params.branchId;
-//   conn.query('SELECT * FROM branch WHERE branch_id = ?', [branchId], (error, results) => {
-//     if (error) {
-//       console.error('Error querying database:', error);
-//       res.status(500).send('Internal server error');
-//       return;
-//     }
-//     if (results.length === 0) {
-//       res.status(404).send('Branch not found');
-//     } else {
-//       console.log('branch data:', results);
-//       console.log('branch data:', results);
-//       console.log('branch data:', results);
-//       console.log('branch data:', results);
-//       console.log('branch data:', results);
-//       res.json(results);
-//     }
-//   });
-// });
-
-// app.get('/brand/:brandId', (req, res) => {
-//   const brandId = req.params.brandId;
-//   conn.query('SELECT * FROM brand WHERE brand_id = ?', [brandId], (error, results) => {
-//     if (error) {
-//       console.error('Error querying database:', error);
-//       res.status(500).send('Internal server error');
-//       return;
-//     }
-//     if (results.length === 0) {
-//       res.status(404).send('Brand not found');
-//     } else {
-//       res.json(results);
-//     }
-//   });
-// });
-
-//購物車
-app.get("/cartlist/:id", function (req, res) {
+//新增條碼
+app.post("/user/:userId/barcode", (req, res) => {
+  const userId = req.params.userId;
+  const { barcodeValue } = req.body;
   conn.query(
-    "SELECT  *,  SUM(cartdetails.item_quantity) as total_item ,  SUM(cartdetails.total_price*cartdetails.item_quantity) as total_item_price FROM branch LEFT join  cartdetails ON branch.branch_id=cartdetails.branch_id LEFT join brand on cartdetails.brand_id=brand.brand_id  WHERE user_id=1   GROUP BY cart_id  ",
-    [],
+    "UPDATE users SET barcode = ? WHERE user_id = ?",
+    [barcodeValue, userId],
+    (error, results) => {
+      if (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+      res.json({ message: "Barcode saved successfully" });
+    }
+  );
+});
+//更新條碼
+app.put("/user/:userId/barcode", (req, res) => {
+  const userId = req.params.userId;
+  const { barcode } = req.body;
+  conn.query(
+    "UPDATE users SET barcode = ? WHERE user_id = ?",
+    [barcode, userId],
+    (error, results) => {
+      if (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+      res.json({ message: "Barcode updated successfully" });
+    }
+  );
+});
+//刪除條碼
+app.delete("/user/:userId/barcode", (req, res) => {
+  const userId = req.params.userId;
+  conn.query(
+    "UPDATE users SET barcode = NULL WHERE user_id = ?",
+    [userId],
+    (error, results) => {
+      if (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+      res.json({ message: "Barcode deleted successfully" });
+    }
+  );
+});
+
+// GET 載具資料
+app.get("/user/:userId/barcode", (req, res) => {
+  const userId = req.params.userId;
+  conn.query(
+    "SELECT barcode FROM users WHERE user_id = ?",
+    [userId],
+    (error, results) => {
+      if (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+      if (results.length === 0) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+      const barcodeData = results[0];
+      res.json(barcodeData);
+    }
+  );
+});
+
+//購物車清單
+app.get("/cartlist/:id", function (req, res) {
+  console.log(req.params.id);
+  conn.query(
+    "SELECT  *,  SUM(cartdetails.item_quantity) as total_item ,  SUM(cartdetails.total_price*cartdetails.item_quantity) as total_item_price ,cartdetails.createtime as cart_createtime FROM branch LEFT join  cartdetails ON branch.branch_id=cartdetails.branch_id LEFT join brand on cartdetails.brand_id=brand.brand_id  WHERE user_id=?   GROUP BY cart_id",
+    [req.params.id],
     (err, rows) => {
       if (err) {
         console.log(err);
@@ -1096,7 +1185,7 @@ app.get("/itemedit/:id", function (req, res) {
               products_price: rows[0].products_price_1,
             },
             {
-              size: rows[0].choose_size_2 ? rows[0].size_1_name : "",
+              size: rows[0].choose_size_2 ? rows[0].size_2_name : "",
               temperatures: rows[0].choose_size_2,
               products_price: rows[0].products_price_2,
             },
@@ -1248,95 +1337,16 @@ app.get("/branchinfo/:branchid", function (req, res) {
 });
 
 //訂單寫入
-// app.post("/cartPay", function (req, res) {
-//   console.log("ok");
-//   console.log(req.body);
-
-//   const orderInfo = {
-//     user_id: req.body.user_id,
-//     branch_id: req.body.branch_id,
-//     orders_total: req.body.orders_total,
-//     orders_bag: req.body.orders_bag,
-//     terms_of_payment: req.body.terms_of_payment,
-//     invoicing_method: req.body.invoicing_method,
-//     orders_bag_num: req.body.orders_bag_num,
-//     usePoninter: req.body.usePoninter,
-//     orders_status: req.body.orders_status,
-//     payment_status: req.body.payment_status,
-//     orders_pick_up: req.body.orders_pick_up,
-//     updatetime: req.body.updatetime,
-//     createtime: req.body.createtime,
-//   };
-
-//   const orderDetails = req.body.details;
-//   let neworderDetails;
-
-//   conn.query(
-//     "INSERT INTO orders (user_id, branch_id, orders_total, orders_bag, terms_of_payment, invoicing_method, orders_bag_num,usePoninter,orders_status, payment_status, orders_pick_up,updatetime, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)",
-//     [
-//       orderInfo.user_id,
-//       orderInfo.branch_id,
-//       orderInfo.orders_total,
-//       orderInfo.orders_bag,
-//       orderInfo.terms_of_payment,
-//       orderInfo.invoicing_method,
-//       orderInfo.orders_bag_num,
-//       orderInfo.usePoninter,
-//       orderInfo.orders_status,
-//       orderInfo.payment_status,
-//       orderInfo.orders_pick_up,
-//       orderInfo.updatetime,
-//       orderInfo.createtime,
-//     ],
-//     (err, results) => {
-//       if (err) {
-//         res.send(JSON.stringify(err));
-//       } else {
-//         // console.log("Inserted successfully.");
-//         // console.log("Results:", results);
-
-//         const orders_id = results.insertId;
-//         neworderDetails = orderDetails.map((item) => {
-//           item.orders_id = orders_id;
-//           return [
-//             item.orders_id,
-//             item.details_name,
-//             item.details_size,
-//             item.details_sugar,
-//             item.details_mperatures,
-//             item.details_ingredient,
-//             item.details_amount,
-//             item.details_quantity,
-//             item.details_total,
-//             item.updatetime,
-//             item.createtime,
-//           ];
-//         });
-//         console.log(neworderDetails);
-//         conn.query(
-//           "INSERT INTO order_details (orders_id, details_name, details_size, details_sugar, details_mperatures, details_ingredient, details_amount, details_quantity, details_total, updatetime, createtime) VALUES  ?",
-//           [neworderDetails],
-//           (err) => {
-//             if (err) {
-//               console.log(JSON.stringify(err));
-//             } else {
-//               console.log("成功寫入訂單資訊、明細");
-//             }
-//           }
-//         );
-//       }
-//     }
-//   );
-// });
-
-//訂單寫入
-app.post("/cartPay", function (req, res) {
+//現金交易
+app.post("/cartcashpay", function (req, res) {
   console.log("ok");
   console.log(req.body);
 
   const orderInfo = {
     user_id: req.body.user_id,
-    branch_id: req.body.branch_id,
+    brand_id: req.body.brand_id,
+    branch_name: req.body.branch_name,
+    brand_name: req.body.brand_name,
     orders_total: req.body.orders_total,
     orders_bag: req.body.orders_bag,
     terms_of_payment: req.body.terms_of_payment,
@@ -1346,25 +1356,30 @@ app.post("/cartPay", function (req, res) {
     orders_status: req.body.orders_status,
     payment_status: req.body.payment_status,
     orders_pick_up: req.body.orders_pick_up,
+    updatedpoints: req.body.updatedpoints,
     updatetime: onTime(),
     createtime: onTime(),
   };
   const orderDetails = req.body.details;
   let neworderDetails;
-
+  let orders_id;
+  console.log(orderInfo);
   conn.query(
-    "INSERT INTO orders (user_id, branch_id, orders_total, orders_bag, terms_of_payment, invoicing_method, orders_bag_num,usePoninter,orders_status, payment_status, orders_pick_up,updatetime, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)",
+    "INSERT INTO orders (user_id, brand_id,branch_name,brand_name ,orders_total, orders_bag, terms_of_payment, invoicing_method, orders_bag_num,usePoninter, payment_status,orders_status,updatedpoints,orders_pick_up,updatetime, createtime) VALUES (?, ?,?,?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)",
     [
       orderInfo.user_id,
-      orderInfo.branch_id,
+      orderInfo.brand_id,
+      orderInfo.branch_name,
+      orderInfo.brand_name,
       orderInfo.orders_total,
       orderInfo.orders_bag,
       orderInfo.terms_of_payment,
       orderInfo.invoicing_method,
       orderInfo.orders_bag_num,
       orderInfo.usePoninter,
-      orderInfo.orders_status,
       orderInfo.payment_status,
+      orderInfo.orders_status,
+      orderInfo.updatedpoints,
       orderInfo.orders_pick_up,
       orderInfo.updatetime,
       orderInfo.createtime,
@@ -1376,7 +1391,7 @@ app.post("/cartPay", function (req, res) {
         console.log("Inserted successfully.");
         console.log("Results:", results);
 
-        const orders_id = results.insertId;
+        orders_id = results.insertId;
         neworderDetails = orderDetails.map((item) => {
           item.orders_id = orders_id;
           return [
@@ -1396,13 +1411,14 @@ app.post("/cartPay", function (req, res) {
 
         console.log(neworderDetails);
         conn.query(
-          "INSERT INTO order_details (orders_id, details_name, details_size, details_sugar, details_mperatures, details_ingredient, details_amount, details_quantity, details_total, updatetime, createtime) VALUES  ?",
+          "INSERT INTO order_details (orders_id, details_name, details_size, details_sugar, details_mperatures, details_ingredient, details_amount, details_quantity, details_total,updatetime, createtime) VALUES  ?",
           [neworderDetails],
-          (err) => {
+          (err, result) => {
             if (err) {
               console.log(JSON.stringify(err));
             } else {
               console.log("成功寫入訂單資訊、明細");
+              res.end();
             }
           }
         );
@@ -1411,7 +1427,196 @@ app.post("/cartPay", function (req, res) {
   );
 });
 
+//串接
+const SecretKey = "085beec8f76f130cf12838cfeb1835f2";
+const LINEPAY_CHANNEL_ID = 2004276099;
+const LINEPAY_VERSION = "v3";
+const LINEPAY_SITE = "https://sandbox-api-pay.line.me";
+let orders = {};
+let orderId = parseInt(new Date().getTime() / 1000);
+function createSignature(uri, linePayBody) {
+  let nonce = parseInt(new Date().getTime() / 1000);
+  const string = `${SecretKey}/${LINEPAY_VERSION}${uri}${JSON.stringify(
+    linePayBody
+  )}${nonce}`;
+  const signature = Base64.stringify(HmacSHA256(string, SecretKey));
+  console.log(linePayBody, signature);
+  const headers = {
+    "Content-Type": "application/json",
+    "X-LINE-ChannelId": LINEPAY_CHANNEL_ID,
+    "X-LINE-Authorization-Nonce": nonce,
+    "X-LINE-Authorization": signature,
+  };
+  console.log("headersssssss" + headers);
+  return headers;
+}
+
+app.post("/cartlinepay", function (req, res) {
+  orders = {};
+  orderId = parseInt(new Date().getTime() / 1000);
+  console.log("ok");
+  console.log(req.body);
+
+  const orderInfo = {
+    user_id: req.body.user_id,
+    brand_id: req.body.brand_id,
+    branch_name: req.body.branch_name,
+    brand_name: req.body.brand_name,
+    orders_total: req.body.orders_total,
+    orders_bag: req.body.orders_bag,
+    terms_of_payment: req.body.terms_of_payment,
+    invoicing_method: req.body.invoicing_method,
+    orders_bag_num: req.body.orders_bag_num,
+    usePoninter: req.body.usePoninter,
+    orders_status: req.body.orders_status,
+    payment_status: req.body.payment_status,
+    orders_pick_up: req.body.orders_pick_up,
+    updatedpoints: req.body.updatedpoints,
+    updatetime: onTime(),
+    createtime: onTime(),
+  };
+  const orderDetails = req.body.details;
+  let neworderDetails;
+  let orders_id;
+  console.log(orderInfo);
+  conn.query(
+    "INSERT INTO orders (user_id, brand_id,branch_name,brand_name ,orders_total, orders_bag, terms_of_payment, invoicing_method, orders_bag_num,usePoninter, payment_status,orders_status,updatedpoints,orders_pick_up,updatetime, createtime) VALUES (?, ?,?,?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)",
+    [
+      orderInfo.user_id,
+      orderInfo.brand_id,
+      orderInfo.branch_name,
+      orderInfo.brand_name,
+      orderInfo.orders_total,
+      orderInfo.orders_bag,
+      orderInfo.terms_of_payment,
+      orderInfo.invoicing_method,
+      orderInfo.orders_bag_num,
+      orderInfo.usePoninter,
+      orderInfo.payment_status,
+      orderInfo.orders_status,
+      orderInfo.updatedpoints,
+      orderInfo.orders_pick_up,
+      orderInfo.updatetime,
+      orderInfo.createtime,
+    ],
+    (err, results) => {
+      if (err) {
+        res.send(JSON.stringify(err));
+      } else {
+        console.log("Inserted successfully.");
+        console.log("Results:", results);
+
+        orders_id = results.insertId;
+        neworderDetails = orderDetails.map((item) => {
+          item.orders_id = orders_id;
+          return [
+            item.orders_id,
+            item.details_name,
+            item.details_size,
+            item.details_sugar,
+            item.details_mperatures,
+            item.details_ingredient,
+            item.details_amount,
+            item.details_quantity,
+            item.details_total,
+            onTime(),
+            onTime(),
+          ];
+        });
+
+        console.log(neworderDetails);
+        conn.query(
+          "INSERT INTO order_details (orders_id, details_name, details_size, details_sugar, details_mperatures, details_ingredient, details_amount, details_quantity, details_total,updatetime, createtime) VALUES  ?",
+          [neworderDetails],
+          (err, result) => {
+            if (err) {
+              console.log(JSON.stringify(err));
+            } else {
+              console.log("成功寫入訂單資訊、明細");
+              console.log(orders_id);
+              conn.query(
+                `SELECT * FROM  orders where orders_id=${orders_id}`,
+                [],
+                async (err, rows) => {
+                  orderDate = {
+                    amount: rows[0].orders_total,
+                    currency: "TWD",
+                    orderId: orderId,
+                    packages: [
+                      {
+                        id: rows[0].orders_id,
+                        amount: Number(rows[0].orders_total),
+                        products: [
+                          {
+                            name: "飲料",
+                            quantity: 1,
+                            price: Number(rows[0].orders_total),
+                          },
+                        ],
+                      },
+                    ],
+                  };
+                  if (err) {
+                    console.log(JSON.stringify(err));
+                  } else {
+                    const order = orderDate;
+                    orders[order.orderId] = order;
+                    const linePayBody = {
+                      ...order,
+                      redirectUrls: {
+                        confirmUrl: "http://localhost:8000/linepay/confirm",
+                        cancelUrl: "http://localhost:8000/linepay/cancel",
+                      },
+                    };
+                    console.log("linePayBody", linePayBody);
+                    const uri = "/payments/request";
+                    const headers = createSignature(uri, linePayBody);
+                    //       //準備送給linepay
+                    const url = `${LINEPAY_SITE}/${LINEPAY_VERSION}${uri}`;
+                    const linePayRes = await axios.post(url, linePayBody, {
+                      headers,
+                    });
+                    console.log("linePayRes", linePayRes.data);
+                    console.log(linePayRes.data.info);
+                    transactionId = linePayRes.data.info.transactionId;
+                    paymentAccessToken =
+                      linePayRes.data.info.paymentAccessToken;
+                    if (linePayRes?.data?.returnCode === "0000") {
+                      res.send(linePayRes?.data?.info.paymentUrl.web);
+                    }
+                  }
+                }
+              );
+            }
+          }
+        );
+      }
+    }
+  );
+});
+app.get("/linepay/confirm", async (req, res) => {
+  const { transactionId, orderId } = req.query;
+  console.log(transactionId, orderId);
+  try {
+    const order = orders[orderId];
+    const linePayBody = {
+      amount: order.amount,
+      currency: "TWD",
+    };
+    const uri = `/payments/${transactionId}/confirm`;
+    const headers = createSignature(uri, linePayBody);
+    const url = `${LINEPAY_SITE}/${LINEPAY_VERSION}${uri}`;
+    const linePayRes = await axios.post(url, linePayBody, { headers });
+    console.log("付款成功");
+    //這裡寫交易成功轉址
+    res.redirect("http://localhost:3000/Profile");
+  } catch (err) {
+    res.end();
+  }
+});
+
 //修改購物車內容
+
 app.patch("/itemedit/:itemid", function (req, res) {
   console.log("修改");
   console.log(req.params.itemid);
@@ -1433,7 +1638,8 @@ app.patch("/itemedit/:itemid", function (req, res) {
         console.log(err);
       }
       console.log(row);
-      console.log("成功");
+      console.log("修改成功");
+      res.end();
     }
   );
 });
@@ -1467,7 +1673,24 @@ app.delete("/itemdelete/:itemid", function (req, res) {
         console.log(err);
       } else {
         console.log("已成功刪除");
+        res.end();
       }
+    }
+  );
+});
+
+//更新user點數
+app.patch("/user/:id", function (req, res) {
+  conn.query(
+    "UPDATE users SET points= ?  WHERE user_id=?",
+    [req.body.updatepoints, req.params.id],
+    function (err, row) {
+      if (err) {
+        console.log(err);
+      }
+      console.log(row);
+      console.log("修改成功");
+      res.end();
     }
   );
 });
@@ -1494,6 +1717,7 @@ app.post("/cartorder", function (req, res) {
     updatetime: onTime(),
     createtime: onTime(),
   };
+  console.log(data);
   conn.query(
     "INSERT INTO cartdetails(cart_id, user_id, user_name, brand_id, branch_id, product_id, item_img, item_name, item_size, item_sugar, item_temperatures, item_price, item_ingredient, ingredient_price, item_quantity, total_price, updatetime, createtime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
     [

@@ -138,11 +138,32 @@
 
 .rouletteBrand{
     color: #F3B021;
+    font-size: 26px;
 }
 .rouletteProduct{
     color: #F3B021;
+    font-size: 22px;
+}
+/* 滾動條 start */
+#nearbyBranch{
+    height: 2000px;
+    overflow: scroll;
+    -ms-overflow-style: none;
+}
+#nearbyBranch::-webkit-scrollbar {
+    display: none;  
 }
 
+html {
+    overflow: -moz-hidden-unscrollable;
+    height: 100%;
+}
+
+body {
+	height: 100%;
+	overflow: auto;
+}
+/* 滾動條 end */
 
 
 /* footer */
@@ -248,6 +269,12 @@
     #rouletteArea {
         height: 620px;
     }    
+    .rouletteBrand{
+        font-size: 22px;
+    }
+    .rouletteProduct{
+        font-size: 18px;
+    }
 }
 @media screen and (max-width:1100px) {
     #rouletteArea {
@@ -262,6 +289,12 @@
     .footerText{
         font-size: 18px;
     }
+    .rouletteBrand{
+        font-size: 20px;
+    }
+    .rouletteProduct{
+        font-size: 16px;
+    }
 }
 @media screen and (max-width:992px) {
     .headerText {
@@ -270,6 +303,12 @@
     #rouletteArea {
         height: 470px;
     }    
+    .rouletteBrand{
+        font-size: 16px;
+    }
+    .rouletteProduct{
+        font-size: 14px;
+    }
 }
 @media screen and (max-width:800px) {
     #header {
@@ -305,10 +344,10 @@
         font-size: 12px;
     }
     .rouletteBrand{
-        font-size: 16px;
+        font-size: 14px;
     }
     .rouletteProduct{
-        font-size: 14px;
+        font-size: 12px;
     }
 }
 @media screen and (max-width:650px) {
@@ -346,12 +385,6 @@
     }
     .footerText{
         font-size: 8px;
-    }
-    .rouletteBrand{
-        font-size: 14px;
-    }
-    .rouletteProduct{
-        font-size: 12px;
     }
     #rouletteArea {
         height: 230px;    
